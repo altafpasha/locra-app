@@ -54,7 +54,7 @@ jobs:
       - name: 🔐 Execute Remote Deployment over SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/home/codesec/locra_app' }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           TRAVEL_AI_API_KEY: ${{ secrets.TRAVEL_AI_API_KEY }}
           TRAVEL_AI_API_URL: ${{ secrets.TRAVEL_AI_API_URL || 'https://travel-api.codesec.me' }}
           REPO_URL: "https://github.com/${{ github.repository }}.git"
@@ -67,40 +67,71 @@ jobs:
           envs: DEPLOY_PATH,TRAVEL_AI_API_KEY,TRAVEL_AI_API_URL,REPO_URL,BRANCH
           script_stop: true
           script: |
-            set -e
-            echo "🚀 Starting Locra AI deployment on $(hostname)..."
-            
-            TARGET_DIR="${DEPLOY_PATH:-/home/codesec/locra_app}"
-            echo "📂 Deploy directory: $TARGET_DIR"
-            mkdir -p "$TARGET_DIR"
+            echo "=================================================="
+            echo "🚀 Starting Locra AI Deployment on $(hostname)"
+            echo "👤 User: $(whoami) | Home: $HOME | PWD: $(pwd)"
+            echo "=================================================="
+
+            # 1. Determine and prepare target directory
+            if [ -n "$DEPLOY_PATH" ]; then
+              TARGET_DIR="$DEPLOY_PATH"
+            else
+              TARGET_DIR="$HOME/locra_app"
+            fi
+            echo "📂 Target Directory: $TARGET_DIR"
+
+            mkdir -p "$TARGET_DIR" 2>/dev/null || sudo mkdir -p "$TARGET_DIR" 2>/dev/null || true
+            sudo chown -R $(whoami):$(whoami) "$TARGET_DIR" 2>/dev/null || true
             cd "$TARGET_DIR"
-            
+            echo "📍 Current working directory: $(pwd)"
+
+            # 2. Git Fetch and Sync
             if [ -d ".git" ]; then
               echo "🔄 Updating existing Git repository..."
               git remote set-url origin "$REPO_URL" 2>/dev/null || true
               git fetch origin "$BRANCH"
               git reset --hard "origin/$BRANCH"
             else
-              echo "📥 Initializing and fetching Git repository..."
+              echo "📥 Initializing and cloning Git repository..."
               git init
-              git remote add origin "$REPO_URL" 2>/dev/null || git remote set-url origin "$REPO_URL"
+              git remote add origin "$REPO_URL" 2>/dev/null || git remote set-url origin "$REPO_URL" 2>/dev/null || true
               git fetch origin "$BRANCH"
               git checkout -f -B "$BRANCH" "origin/$BRANCH"
             fi
-            
-            echo "⚙️ Writing production .env configuration..."
+
+            # 3. Write Production Environment Configuration
+            echo "⚙️ Writing .env configuration..."
             printf "NODE_ENV=production\nPORT=3000\nTRAVEL_AI_API_KEY=%s\nTRAVEL_AI_API_URL=%s\n" "$TRAVEL_AI_API_KEY" "$TRAVEL_AI_API_URL" > .env
-            
-            echo "🌐 Ensuring Docker network 'dokploy-network'..."
-            docker network inspect dokploy-network >/dev/null 2>&1 || docker network create dokploy-network || true
-            
-            echo "🐳 Building and starting Docker container with Traefik..."
-            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
-            
-            echo "🧹 Cleaning up dangling images..."
-            docker image prune -f || true
-            
+
+            # 4. Check Docker Permissions and Compose Command
+            if docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="docker"
+            elif sudo docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="sudo docker"
+            else
+              echo "❌ Error: Docker is not accessible for user $(whoami)"
+              exit 1
+            fi
+            echo "🐳 Using Docker command: $DOCKER_BIN"
+
+            # 5. Ensure Dokploy / Traefik Network
+            echo "🌐 Checking Docker network 'dokploy-network'..."
+            $DOCKER_BIN network inspect dokploy-network >/dev/null 2>&1 || $DOCKER_BIN network create dokploy-network 2>/dev/null || true
+
+            # 6. Build and Launch Containers
+            echo "🚀 Launching containers with Docker Compose..."
+            $DOCKER_BIN compose -f docker-compose.prod.yml up -d --build --remove-orphans
+
+            # 7. Prune dangling images
+            echo "🧹 Cleaning up old unused images..."
+            $DOCKER_BIN image prune -f || true
+
+            # 8. Verification Output
             echo "✅ Container status:"
-            docker ps --filter "name=locra-app"
-            
-            echo "🎉 Locra AI successfully deployed to https://locra.app and https://www.locra.app!"
+            $DOCKER_BIN ps --filter "name=locra-app"
+
+            echo "=================================================="
+            echo "🎉 Locra AI successfully deployed to:"
+            echo "   👉 https://locra.app"
+            echo "   👉 https://www.locra.app"
+            echo "=================================================="
