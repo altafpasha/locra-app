@@ -7,6 +7,9 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: production-deploy
   cancel-in-progress: false
@@ -57,14 +60,15 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           TRAVEL_AI_API_KEY: ${{ secrets.TRAVEL_AI_API_KEY }}
           TRAVEL_AI_API_URL: ${{ secrets.TRAVEL_AI_API_URL || 'https://travel-api.codesec.me' }}
-          REPO_URL: "https://github.com/${{ github.repository }}.git"
+          REPO_AUTH_URL: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          REPO_CLEAN_URL: "https://github.com/${{ github.repository }}.git"
           BRANCH: ${{ github.ref_name }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          envs: DEPLOY_PATH,TRAVEL_AI_API_KEY,TRAVEL_AI_API_URL,REPO_URL,BRANCH
+          envs: DEPLOY_PATH,TRAVEL_AI_API_KEY,TRAVEL_AI_API_URL,REPO_AUTH_URL,REPO_CLEAN_URL,BRANCH
           script_stop: true
           script: |
             echo "=================================================="
@@ -85,19 +89,24 @@ jobs:
             cd "$TARGET_DIR"
             echo "📍 Current working directory: $(pwd)"
 
-            # 2. Git Fetch and Sync
+            # 2. Git Fetch and Sync with Token Authentication
+            echo "🔄 Synchronizing codebase from GitHub..."
             if [ -d ".git" ]; then
               echo "🔄 Updating existing Git repository..."
-              git remote set-url origin "$REPO_URL" 2>/dev/null || true
+              git remote set-url origin "$REPO_AUTH_URL" 2>/dev/null || true
               git fetch origin "$BRANCH"
               git reset --hard "origin/$BRANCH"
             else
               echo "📥 Initializing and cloning Git repository..."
               git init
-              git remote add origin "$REPO_URL" 2>/dev/null || git remote set-url origin "$REPO_URL" 2>/dev/null || true
+              git remote add origin "$REPO_AUTH_URL" 2>/dev/null || git remote set-url origin "$REPO_AUTH_URL" 2>/dev/null || true
               git fetch origin "$BRANCH"
               git checkout -f -B "$BRANCH" "origin/$BRANCH"
             fi
+
+            # Clean token from git config after sync
+            git remote set-url origin "$REPO_CLEAN_URL" 2>/dev/null || true
+            echo "✅ Codebase updated to latest commit."
 
             # 3. Write Production Environment Configuration
             echo "⚙️ Writing .env configuration..."
