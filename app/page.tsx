@@ -1,12 +1,14 @@
 import React from "react";
 import { HeroSection } from "@/components/hero/HeroSection";
+import { AppIntroEditorial } from "@/components/features/AppIntroEditorial";
 import { ProblemSolution } from "@/components/features/ProblemSolution";
 import { ReelExtractorDemo } from "@/components/reel-feature/ReelExtractorDemo";
-import { AppShowcase } from "@/components/showcase/AppShowcase";
-import { StepTimeline } from "@/components/how-it-works/StepTimeline";
 import { FeatureGrid } from "@/components/features/FeatureGrid";
-import { VoiceAiBanner } from "@/components/features/VoiceAiBanner";
-import { AiContextSection } from "@/components/features/AiContextSection";
+import { EditorialFeatureShowcase } from "@/components/features/EditorialFeatureShowcase";
+import { InteractiveDeviceExplorer } from "@/components/showcase/InteractiveDeviceExplorer";
+import { AppShowcase } from "@/components/showcase/AppShowcase";
+import { BenefitsMetrics } from "@/components/features/BenefitsMetrics";
+import { SecurityTrustSection } from "@/components/features/SecurityTrustSection";
 import { PricingCards } from "@/components/pricing/PricingCards";
 import { ComparisonTable } from "@/components/pricing/ComparisonTable";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
@@ -15,44 +17,50 @@ import { Container } from "@/components/common/Container";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col">
-      {/* 1. Hero Section */}
+    <div className="flex flex-col bg-[#050507]">
+      {/* 1. Cinematic Hero Section with 3-Phone Android Showcase */}
       <HeroSection />
 
-      {/* 2. Problem & Solution Section */}
+      {/* 2. Editorial Statement & Product Introduction */}
+      <AppIntroEditorial />
+
+      {/* 3. The Core Travel Problem & Locra Solution */}
       <ProblemSolution />
 
-      {/* 3. Reel-First Differentiator Interactive Demo */}
+      {/* 4. Live Interactive Reel Extractor (Connected to Universal API) */}
       <ReelExtractorDemo />
 
-      {/* 4. Real App Screens Showcase */}
-      <AppShowcase />
-
-      {/* 5. 4-Step How It Works Flow */}
-      <StepTimeline />
-
-      {/* 5. Bento Grid of Core Capabilities */}
+      {/* 5. Asymmetric Futuristic Feature Cards (Reference Visual System) */}
       <FeatureGrid />
 
-      {/* 6. Voice AI Interactive Waveform Banner */}
-      <VoiceAiBanner />
+      {/* 6. Alternating Visual Editorial Feature Deep-Dives */}
+      <EditorialFeatureShowcase />
 
-      {/* 7. Trip-Aware AI Section */}
-      <AiContextSection />
+      {/* 6. Interactive Multi-Screen Android Device Explorer */}
+      <InteractiveDeviceExplorer />
 
-      {/* 7. Pricing & Feature Comparison */}
+      {/* 7. Dedicated "Inside the App" Screenshot Gallery */}
+      <AppShowcase />
+
+      {/* 8. Measurable Outcomes & Benefits */}
+      <BenefitsMetrics />
+
+      {/* 9. Security, Privacy & Android Native Performance */}
+      <SecurityTrustSection />
+
+      {/* 10. Pricing & Feature Comparison */}
       <PricingCards />
 
-      <section className="pb-20 sm:pb-28 bg-app">
+      <section className="pb-20 sm:pb-28 bg-[#050507]">
         <Container size="xl">
           <ComparisonTable />
         </Container>
       </section>
 
-      {/* 8. Frequently Asked Questions */}
+      {/* 11. Frequently Asked Questions */}
       <FAQAccordion limit={6} />
 
-      {/* 9. Final Download App Banner */}
+      {/* 12. Final High-Impact Download App CTA */}
       <DownloadBanner />
     </div>
   );

@@ -1,226 +1,378 @@
+"use client";
+
 import React from "react";
-import {
-  Share2,
-  Calendar,
-  Users,
-  DollarSign,
-  Mic,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Container } from "@/components/common/Container";
 import { SectionHeader } from "@/components/common/SectionHeader";
-import { Badge } from "@/components/common/Badge";
+import { cn } from "@/lib/utils";
 
 export function FeatureGrid() {
   return (
-    <section className="py-24 bg-app text-white relative overflow-hidden border-b border-white/10" id="features">
-      <Container size="xl">
+    <section
+      className="py-24 sm:py-36 bg-[#050507] text-white relative overflow-hidden"
+      id="features"
+    >
+      {/* Ambient background glow & fine grid */}
+      <div className="ambient-orange-spot left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-[900px] h-[650px] opacity-70 pointer-events-none" />
+      <div className="absolute inset-0 studio-grid opacity-40 pointer-events-none" />
+
+      <Container size="xl" className="relative z-10">
         <SectionHeader
-          badge="Bento Architecture"
+          badge="Autonomous Architecture"
           badgeVariant="accent"
           title={
             <span className="text-white">
-              Five Essential Travel Apps, <span className="accent-gradient-text">Consolidated.</span>
+              An intelligent OS for <span className="hero-gradient-text">every mile.</span>
             </span>
           }
-          description={
-            <span className="text-white/70">
-              Replace messy Instagram bookmarks, Notion docs, Splitwise tabs, and WhatsApp group chats with a single glassmorphic workspace.
-            </span>
-          }
+          description="Engineered with dark glass surfaces, abstract visual precision, and native Android synchronization."
         />
 
-        {/* Bento Grid */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
-          {/* Card 1: Large Span — Multi-Place Extraction */}
-          <div className="lg:col-span-8 rounded-3xl glass-panel p-6 sm:p-8 card-hover-lift flex flex-col justify-between relative overflow-hidden">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-accent/20 text-accent flex items-center justify-center border border-accent/30">
-                  <Share2 className="w-6 h-6" />
-                </div>
-                <Badge variant="accent" size="sm">
-                  1 Reel → 5 Places
-                </Badge>
-              </div>
+        {/* ============================================================
+            ASYMMETRIC 3-COLUMN FUTURISTIC CARD GRID
+            ============================================================ */}
+        <div className="mt-16 sm:mt-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-start max-w-7xl mx-auto">
+          {/* ================= COLUMN 1 (LEFT) ================= */}
+          <div className="flex flex-col gap-6 sm:gap-8">
+            {/* Card 1: Multi-Signal Video Extraction */}
+            <div className="group relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[#15151C] to-[#0D0D12] p-6 sm:p-8 border border-white/[0.09] hover:border-white/20 transition-all duration-500 shadow-2xl hover:-translate-y-1.5 overflow-hidden flex flex-col justify-between min-h-[460px]">
+              {/* Inner glass sheen highlight */}
+              <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
 
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Multi-Place AI Extraction with Confidence Scoring
-              </h3>
-              <p className="text-sm text-white/70 leading-relaxed mb-6 max-w-xl">
-                Paste any video link or travel photo. Our universal parser uses OCR vision and audio transcription to isolate every single mentioned spot, verify coordinates via Google Places API, and prevent duplicates.
-              </p>
+              {/* Upper Abstract Artwork: 3D Stacked Floating Glass Parser Card */}
+              <div className="relative w-full h-44 flex items-center justify-center">
+                <div className="relative w-40 h-32 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                  {/* Subtle background glow */}
+                  <div className="absolute w-28 h-28 rounded-full bg-white/[0.03] blur-xl" />
 
-              {/* Visual simulated UI inside card */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl glass-inset">
-                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold text-ok flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5" /> 98% Match
-                    </span>
-                    <h5 className="text-xs font-bold text-white mt-1">Barki Waterfall</h5>
-                    <p className="text-[10px] text-white/45">Kolhapur Ghats • Open 7 AM</p>
+                  {/* Back layered card */}
+                  <div className="absolute top-2 w-32 h-20 rounded-2xl bg-[#1A1A24] border border-white/[0.06] shadow-xl opacity-40 -rotate-3" />
+                  {/* Middle layered card */}
+                  <div className="absolute top-4 w-34 h-22 rounded-2xl bg-[#1E1E2B] border border-white/[0.08] shadow-2xl opacity-70 rotate-2" />
+
+                  {/* Front main card */}
+                  <div className="relative z-10 w-36 h-24 rounded-2xl bg-gradient-to-br from-[#242432] to-[#14141C] p-3.5 border border-white/[0.15] shadow-2xl flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono font-bold text-white/90 bg-white/[0.08] px-2 py-0.5 rounded-md border border-white/10">
+                        98% AI
+                      </span>
+                      <div className="flex gap-0.5">
+                        <span className="w-1 h-3 rounded-full bg-accent animate-pulse" />
+                        <span className="w-1 h-2 rounded-full bg-white/40" />
+                        <span className="w-1 h-3.5 rounded-full bg-accent/80" />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="w-16 h-1.5 rounded-full bg-white/20" />
+                      <div className="w-24 h-1.5 rounded-full bg-white/10" />
+                    </div>
                   </div>
-                  <span className="text-[9px] text-accent font-mono mt-2">lat: 16.7050, lng: 74.2433</span>
-                </div>
 
-                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold text-ok flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5" /> 95% Match
-                    </span>
-                    <h5 className="text-xs font-bold text-white mt-1">Eva Cafe Cliffside</h5>
-                    <p className="text-[10px] text-white/45">Anjuna Beach • 4.7 ★ (2.8k)</p>
+                  {/* Fine technical coordinate grid lines */}
+                  <svg
+                    className="absolute inset-0 w-full h-full text-white/[0.12] pointer-events-none"
+                    viewBox="0 0 160 128"
+                    fill="none"
+                  >
+                    <path d="M20 64H40M120 64H140" stroke="currentColor" strokeDasharray="2 2" />
+                    <circle cx="20" cy="64" r="2" fill="#FF7A1A" />
+                    <circle cx="140" cy="64" r="2" fill="currentColor" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Lower Content */}
+              <div className="relative z-10 space-y-3 pt-4">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/40">
+                  Universal Video Parser
+                </span>
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  Multi-Signal Reel Extraction
+                </h3>
+                <p className="text-xs sm:text-sm text-white/60 leading-relaxed font-normal">
+                  Transcribes spoken audio while extracting on-screen text overlays to isolate every mentioned spot with zero manual typing.
+                </p>
+                <div className="pt-2">
+                  <a
+                    href="#live-extractor"
+                    className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 px-4 py-2 text-xs font-semibold text-white/80 transition-colors"
+                  >
+                    <span>Try Extractor</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:translate-x-0.5 transition-transform" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Google Places Canonical Metadata */}
+            <div className="group relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[#15151C] to-[#0D0D12] p-6 sm:p-8 border border-white/[0.09] hover:border-white/20 transition-all duration-500 shadow-2xl hover:-translate-y-1.5 overflow-hidden flex flex-col justify-between min-h-[440px]">
+              <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+
+              {/* Upper Abstract Artwork: 3D Folder & Data Verification Stream */}
+              <div className="relative w-full h-40 flex items-center justify-center">
+                <div className="relative w-36 h-28 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                  {/* Back Folder Silhouette */}
+                  <div className="absolute top-1 w-32 h-22 rounded-2xl bg-[#1D1D28] border border-white/[0.06] rotate-3 shadow-lg" />
+                  {/* Front Folder Surface */}
+                  <div className="relative z-10 w-32 h-22 rounded-2xl bg-gradient-to-br from-[#262634] to-[#161620] p-3 border border-white/[0.14] shadow-2xl flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-mono text-white/40">PLACES.DB</span>
+                      <span className="w-2 h-2 rounded-full bg-ok" />
+                    </div>
+                    <div className="space-y-1 font-mono text-[8px] text-white/30">
+                      <p>01100101 · GOOGLE_ID</p>
+                      <p>LAT: 15.5804 LNG: 73.74</p>
+                    </div>
                   </div>
-                  <span className="text-[9px] text-cyan font-mono mt-2">lat: 15.5804, lng: 73.7431</span>
+                  {/* Technical laser verify line */}
+                  <div className="absolute z-20 inset-x-2 top-1/2 h-[1px] bg-gradient-to-r from-transparent via-ok/60 to-transparent" />
                 </div>
               </div>
-            </div>
 
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-white/45">
-              <span>Automatic duplicate prevention with Google Place IDs</span>
-              <span className="text-accent font-semibold">Instant Trip Pinning</span>
+              {/* Lower Content */}
+              <div className="relative z-10 space-y-3 pt-4">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/40">
+                  Google Places Engine
+                </span>
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  Canonical Place Ground Truth
+                </h3>
+                <p className="text-xs sm:text-sm text-white/60 leading-relaxed font-normal">
+                  Every extracted location is matched with genuine Google Places IDs, live street addresses, and verified operating hours.
+                </p>
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] border border-white/10 px-4 py-2 text-xs font-semibold text-white/80">
+                    <span>100% Verified Coordinates</span>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Card 2: Group Chat & Realtime Trip Spaces */}
-          <div className="lg:col-span-4 rounded-3xl glass-panel p-6 sm:p-8 card-hover-lift flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-cyan/20 text-cyan flex items-center justify-center border border-cyan/30">
-                  <Users className="w-6 h-6" />
-                </div>
-                <Badge variant="indigo" size="sm">
-                  Live Sync
-                </Badge>
-              </div>
+          {/* ================= COLUMN 2 (CENTER) ================= */}
+          <div className="flex flex-col gap-6 sm:gap-8">
+            {/* Card 3: Hands-Free Voice Travel Co-Pilot */}
+            <div className="group relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[#15151C] to-[#0D0D12] p-6 sm:p-7 border border-white/[0.09] hover:border-white/20 transition-all duration-500 shadow-2xl hover:-translate-y-1.5 overflow-hidden flex flex-col justify-between min-h-[380px]">
+              <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
 
-              <h3 className="text-xl font-bold text-white mb-2">
-                Collaborative Trip Spaces &amp; Chat
-              </h3>
-              <p className="text-sm text-white/70 leading-relaxed mb-6">
-                Share a single invite code. Everyone can drop saved spots, vote on spots, and see live activity feeds without endless WhatsApp debates.
-              </p>
-
-              <div className="space-y-2 p-3 rounded-2xl glass-inset text-xs">
-                <div className="p-2 rounded-xl bg-white/[0.03] text-white/70 flex items-center justify-between">
-                  <span>Altaf added <strong className="text-white">Barki Falls</strong></span>
-                  <span className="text-[10px] text-white/40">2m ago</span>
-                </div>
-                <div className="p-2 rounded-xl bg-white/[0.03] text-white/70 flex items-center justify-between">
-                  <span>Ahmed split <strong className="text-white">₹4,500 Jeep</strong></span>
-                  <span className="text-[10px] text-ok">Logged</span>
+              {/* Upper Abstract Artwork: 3D Waveform Audio Capsule */}
+              <div className="relative w-full h-32 flex items-center justify-center">
+                <div className="relative w-44 h-20 rounded-full bg-gradient-to-r from-[#181824] via-[#222230] to-[#181824] p-2 border border-white/[0.12] shadow-2xl flex items-center justify-center gap-1.5 transition-transform duration-500 group-hover:scale-105">
+                  <span className="w-1.5 h-3 rounded-full bg-white/30" />
+                  <span className="w-1.5 h-5 rounded-full bg-white/50" />
+                  <span className="w-1.5 h-9 rounded-full bg-accent animate-pulse" />
+                  <span className="w-1.5 h-12 rounded-full bg-accent" />
+                  <span className="w-1.5 h-7 rounded-full bg-accent/80" />
+                  <span className="w-1.5 h-4 rounded-full bg-white/50" />
+                  <span className="w-1.5 h-2 rounded-full bg-white/30" />
                 </div>
               </div>
-            </div>
 
-            <div className="mt-6 pt-4 border-t border-white/10 text-xs text-cyan font-semibold">
-              Invite friends via locra://trip/link
-            </div>
-          </div>
-
-          {/* Card 3: Visual Day-by-Day Itinerary */}
-          <div className="lg:col-span-4 rounded-3xl glass-panel p-6 sm:p-8 card-hover-lift flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-purple/20 text-purple flex items-center justify-center border border-purple/30">
-                  <Calendar className="w-6 h-6" />
-                </div>
-                <Badge variant="indigo" size="sm">
-                  Route Aware
-                </Badge>
-              </div>
-
-              <h3 className="text-xl font-bold text-white mb-2">
-                Timeline Itinerary Planner
-              </h3>
-              <p className="text-sm text-white/70 leading-relaxed mb-6">
-                Organize stops with driving &amp; walking times calculated automatically. Toggle visit status from &ldquo;To Visit&rdquo; to &ldquo;Visited&rdquo; on the go.
-              </p>
-
-              <div className="space-y-2 text-xs border-l-2 border-accent/50 pl-3">
-                <div className="relative">
-                  <p className="font-bold text-white">09:00 AM • Morning Coffee</p>
-                  <p className="text-[10px] text-white/45">10 min drive to next stop</p>
-                </div>
-                <div className="relative">
-                  <p className="font-bold text-white">11:30 AM • Waterfall Trek</p>
-                  <p className="text-[10px] text-white/45">Scenic jungle route</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-white/10 text-xs text-purple font-semibold">
-              Zero backtracking • Smart neighborhood clusters
-            </div>
-          </div>
-
-          {/* Card 4: Splitwise-Style Expense Engine */}
-          <div className="lg:col-span-4 rounded-3xl glass-panel p-6 sm:p-8 card-hover-lift flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-ok/20 text-ok flex items-center justify-center border border-ok/30">
-                  <DollarSign className="w-6 h-6" />
-                </div>
-                <Badge variant="emerald" size="sm">
-                  Auto Debt Settlement
-                </Badge>
-              </div>
-
-              <h3 className="text-xl font-bold text-white mb-2">
-                Smart Expense &amp; Debt Splitter
-              </h3>
-              <p className="text-sm text-white/70 leading-relaxed mb-6">
-                Log costs in any currency with equal, custom, or percentage splits. Locra generates an auto-minimized settlement matrix showing exactly who pays whom.
-              </p>
-
-              <div className="p-3.5 rounded-2xl glass-inset text-xs space-y-1.5">
-                <div className="flex justify-between font-bold text-white">
-                  <span>Total Trip Spend</span>
-                  <span className="text-accent">₹14,500</span>
-                </div>
-                <p className="text-[11px] text-ok">
-                  Debt minimized: 1 single transfer settles all 4 members
+              <div className="relative z-10 space-y-2 pt-2">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/40">
+                  Voice Intent Co-Pilot
+                </span>
+                <h3 className="text-lg font-bold text-white tracking-tight">
+                  Hands-Free Voice Querying
+                </h3>
+                <p className="text-xs text-white/60 leading-relaxed font-normal">
+                  Speak natural instructions on the road to add places, query drive times, and log expenses without touching your phone.
                 </p>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-white/10 text-xs text-ok font-semibold">
-              Supports INR, USD, EUR, JPY &amp; more
+            {/* ============================================================
+                CARD 4: THE HERO FOCAL POINT CARD (LARGE CENTER CARD)
+                Warm amber/orange + subtle magenta glowing border & radar
+                ============================================================ */}
+            <div className="group relative rounded-[30px] sm:rounded-[36px] bg-gradient-to-b from-[#181622] via-[#12111A] to-[#0B0A10] p-7 sm:p-9 border-2 border-transparent transition-all duration-500 shadow-2xl hover:-translate-y-2 overflow-hidden flex flex-col justify-between min-h-[540px] ring-1 ring-white/15">
+              {/* Outer atmospheric glowing aura */}
+              <div className="absolute -inset-1 rounded-[36px] bg-gradient-to-tr from-[#FF7A1A]/35 via-[#FF9447]/20 to-[#A855F7]/30 blur-xl opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+              {/* Glowing gradient border overlay */}
+              <div className="absolute inset-0 rounded-[30px] sm:rounded-[36px] p-[1.5px] bg-gradient-to-b from-[#FF9447] via-[#FF7A1A]/40 to-[#A855F7]/60 pointer-events-none [mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [mask-composite:exclude]" />
+
+              {/* Inner ambient light sheen */}
+              <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-[#FF9447]/15 via-transparent to-transparent pointer-events-none" />
+
+              {/* Upper Abstract Artwork: Concentric Orbital Radar with Connecting Waypoint Nodes */}
+              <div className="relative w-full h-52 flex items-center justify-center">
+                <div className="relative w-48 h-48 flex items-center justify-center transition-transform duration-700 group-hover:scale-105">
+                  {/* Concentric rings */}
+                  <div className="absolute w-44 h-44 rounded-full border border-white/[0.08]" />
+                  <div className="absolute w-32 h-32 rounded-full border border-white/[0.12]" />
+                  <div className="absolute w-20 h-20 rounded-full border border-accent/30 bg-accent/[0.05]" />
+
+                  {/* Vertical axis line */}
+                  <div className="absolute inset-y-2 w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                  {/* Horizontal axis line */}
+                  <div className="absolute inset-x-2 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                  {/* Top node */}
+                  <div className="absolute top-3 flex flex-col items-center">
+                    <div className="w-8 h-8 rounded-full bg-[#242130] border border-white/20 text-white/90 flex items-center justify-center text-xs font-bold shadow-lg">
+                      📍
+                    </div>
+                  </div>
+
+                  {/* Center core */}
+                  <div className="relative z-10 w-4 h-4 rounded-full bg-accent shadow-lg shadow-accent/50 flex items-center justify-center">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                  </div>
+
+                  {/* Bottom node */}
+                  <div className="absolute bottom-3 flex flex-col items-center">
+                    <div className="w-8 h-8 rounded-full bg-[#242130] border border-accent/40 text-accent flex items-center justify-center text-xs font-bold shadow-lg">
+                      ✦
+                    </div>
+                  </div>
+
+                  {/* Orbiting particles */}
+                  <span className="absolute top-10 left-6 w-1.5 h-1.5 rounded-full bg-white/40" />
+                  <span className="absolute bottom-10 right-6 w-1.5 h-1.5 rounded-full bg-accent/60" />
+                </div>
+              </div>
+
+              {/* Lower Content */}
+              <div className="relative z-10 space-y-3.5 pt-4">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 border border-accent/40 px-3 py-1 text-[10px] font-bold text-accent">
+                  <Sparkles className="w-3 h-3" />
+                  <span>CORE ROUTE INTELLIGENCE</span>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                  Distance-Aware Day Clustering
+                </h3>
+
+                <p className="text-xs sm:text-sm text-white/70 leading-relaxed font-normal">
+                  Eliminate city backtracking. Locra calculates drive times and clusters morning, afternoon, and evening pins into realistic itineraries.
+                </p>
+
+                <div className="pt-3">
+                  <a
+                    href="#download-app"
+                    className="orange-pill-btn inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold text-[#140A02] shadow-lg transition-all"
+                  >
+                    <span>Experience Smart Itinerary</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 5: Real-Time Collaborative Spaces */}
+            <div className="group relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[#15151C] to-[#0D0D12] p-6 sm:p-7 border border-white/[0.09] hover:border-white/20 transition-all duration-500 shadow-2xl hover:-translate-y-1.5 overflow-hidden flex flex-col justify-between min-h-[380px]">
+              <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+
+              {/* Upper Abstract Artwork: 3D Biometric Node / User Circle */}
+              <div className="relative w-full h-32 flex items-center justify-center">
+                <div className="relative w-28 h-28 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                  <div className="absolute w-24 h-24 rounded-full border border-white/[0.08]" />
+                  <div className="absolute w-16 h-16 rounded-full border border-cyan/30 bg-cyan/[0.05]" />
+                  <div className="w-10 h-10 rounded-full bg-[#1E202E] border border-white/20 text-cyan flex items-center justify-center text-xs font-bold shadow-lg">
+                    👥
+                  </div>
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-cyan animate-ping" />
+                </div>
+              </div>
+
+              <div className="relative z-10 space-y-2 pt-2">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/40">
+                  Shared Trip Spaces
+                </span>
+                <h3 className="text-lg font-bold text-white tracking-tight">
+                  Real-Time Group Sync
+                </h3>
+                <p className="text-xs text-white/60 leading-relaxed font-normal">
+                  Invite travel companions via one tap. Everyone votes on dinner pins and views live itinerary updates.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Card 5: Live Map & Voice Co-Pilot */}
-          <div className="lg:col-span-4 rounded-3xl glass-panel p-6 sm:p-8 card-hover-lift flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-accent/20 text-accent flex items-center justify-center border border-accent/30">
-                  <Mic className="w-6 h-6" />
+          {/* ================= COLUMN 3 (RIGHT) ================= */}
+          <div className="flex flex-col gap-6 sm:gap-8">
+            {/* Card 6: Multi-Currency Expense Splitter */}
+            <div className="group relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[#15151C] to-[#0D0D12] p-6 sm:p-8 border border-white/[0.09] hover:border-white/20 transition-all duration-500 shadow-2xl hover:-translate-y-1.5 overflow-hidden flex flex-col justify-between min-h-[460px]">
+              <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+
+              {/* Upper Abstract Artwork: 3D Interlocking Hexagonal Currency Badges */}
+              <div className="relative w-full h-44 flex items-center justify-center">
+                <div className="relative w-40 h-32 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                  {/* Top Hexagon (₹) */}
+                  <div className="absolute top-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[#262634] to-[#161620] border border-white/20 shadow-xl flex items-center justify-center font-bold text-white text-sm">
+                    ₹
+                  </div>
+                  {/* Left Hexagon ($) */}
+                  <div className="absolute bottom-2 left-4 w-12 h-12 rounded-xl bg-gradient-to-br from-[#20202C] to-[#121218] border border-white/15 shadow-xl flex items-center justify-center font-bold text-white/80 text-sm">
+                    $
+                  </div>
+                  {/* Right Hexagon (€) */}
+                  <div className="absolute bottom-2 right-4 w-12 h-12 rounded-xl bg-gradient-to-br from-[#20202C] to-[#121218] border border-white/15 shadow-xl flex items-center justify-center font-bold text-white/80 text-sm">
+                    €
+                  </div>
+                  {/* Connecting thin vector line */}
+                  <svg className="absolute inset-0 w-full h-full text-white/20 pointer-events-none" viewBox="0 0 160 128">
+                    <line x1="80" y1="36" x2="48" y2="90" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
+                    <line x1="80" y1="36" x2="112" y2="90" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
+                  </svg>
                 </div>
-                <Badge variant="accent" size="sm">
-                  Hands-Free Voice AI
-                </Badge>
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-2">
-                Voice AI Co-Pilot &amp; Live Map
-              </h3>
-              <p className="text-sm text-white/70 leading-relaxed mb-6">
-                Add places and log expenses while driving using natural voice intent recognition. Track friends on the live map with battery-friendly updates.
-              </p>
-
-              <div className="p-3.5 rounded-2xl glass-inset text-xs flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent animate-pulse shrink-0">
-                  <Mic className="w-4 h-4" />
-                </div>
-                <span className="text-white/70 italic">
-                  &ldquo;Split ₹1500 taxi with Ahmed and add coffee spot to Day 2&rdquo;
+              {/* Lower Content */}
+              <div className="relative z-10 space-y-3 pt-4">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/40">
+                  Debt Minimization Matrix
                 </span>
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  Multi-Currency Bill Splitting
+                </h3>
+                <p className="text-xs sm:text-sm text-white/60 leading-relaxed font-normal">
+                  Log costs in INR, USD, EUR, or JPY. The engine calculates simplified net balances so the group settles with one single payment.
+                </p>
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] border border-white/10 px-4 py-2 text-xs font-semibold text-white/80">
+                    <span>Zero Spreadsheets Needed</span>
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-white/10 text-xs text-accent font-semibold">
-              Offline map packs &amp; battery optimization
+            {/* Card 7: Offline Native Android Cache */}
+            <div className="group relative rounded-[28px] sm:rounded-[32px] bg-gradient-to-b from-[#15151C] to-[#0D0D12] p-6 sm:p-8 border border-white/[0.09] hover:border-white/20 transition-all duration-500 shadow-2xl hover:-translate-y-1.5 overflow-hidden flex flex-col justify-between min-h-[440px]">
+              <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+
+              {/* Upper Abstract Artwork: 3D Frosted Star / Shield Rosette */}
+              <div className="relative w-full h-40 flex items-center justify-center">
+                <div className="relative w-32 h-32 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                  {/* Rosette outer tick rays */}
+                  <div className="absolute inset-0 rounded-full border border-dashed border-white/15 animate-spin [animation-duration:40s]" />
+                  {/* Frosted rosette shield */}
+                  <div className="relative z-10 w-20 h-20 rounded-2xl bg-gradient-to-br from-[#282838] to-[#14141E] border border-white/20 shadow-2xl flex items-center justify-center rotate-45">
+                    <div className="w-12 h-12 rounded-xl bg-white/[0.06] border border-white/15 flex items-center justify-center -rotate-45">
+                      <span className="text-white text-base">★</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lower Content */}
+              <div className="relative z-10 space-y-3 pt-4">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/40">
+                  Offline Sync &amp; Storage
+                </span>
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  Zero Connectivity Dropouts
+                </h3>
+                <p className="text-xs sm:text-sm text-white/60 leading-relaxed font-normal">
+                  All saved places, daily routes, and split sheets are stored locally on your Android device for reliable offline access in remote regions.
+                </p>
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] border border-white/10 px-4 py-2 text-xs font-semibold text-white/80">
+                    <span>Cached On-Device</span>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

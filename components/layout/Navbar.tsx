@@ -6,8 +6,15 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight, Sparkles } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
-import { Container } from "@/components/common/Container";
 import { cn } from "@/lib/utils";
+
+const NAV_LINKS = [
+  { label: "Features", href: "/#features" },
+  { label: "Experience", href: "/#experience" },
+  { label: "Screenshots", href: "/#screenshots" },
+  { label: "Security", href: "/#security" },
+  { label: "FAQ", href: "/#faq" },
+];
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -16,142 +23,113 @@ export function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 24);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 w-full transition-all duration-200",
-        scrolled
-          ? "bg-app-2/80 backdrop-blur-xl border-b border-white/10 py-3"
-          : "bg-transparent py-4 sm:py-5"
-      )}
-    >
-      <Container size="xl">
-        <nav className="flex items-center justify-between" aria-label="Main Navigation">
-          {/* Logo */}
+    <header className="fixed top-0 inset-x-0 z-50 pointer-events-none transition-all duration-300 pt-3 sm:pt-5 px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto pointer-events-auto">
+        <nav
+          className={cn(
+            "glass-pill-nav rounded-full px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between transition-all duration-300",
+            scrolled ? "shadow-2xl bg-[#0C0C11]/90" : "bg-[#0C0C11]/75"
+          )}
+          aria-label="Main Navigation"
+        >
+          {/* Brand Logo */}
           <Link
             href="/"
-            aria-label="Locra AI — home"
-            className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg p-1"
+            aria-label="Locra AI — Home"
+            className="flex items-center gap-2.5 group focus-visible:outline-none rounded-full"
           >
-            <Image
-              src="/logo-mark.png"
-              alt=""
-              width={34}
-              height={30}
-              priority
-              className="h-[26px] w-auto transition-transform duration-300 group-hover:scale-105"
-            />
-            <span className="text-[19px] font-bold tracking-tight text-white">
-              Locra <span className="text-accent">AI</span>
+            <div className="relative w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
+              <Image
+                src="/logo-mark.png"
+                alt="Locra AI Logo"
+                width={26}
+                height={26}
+                priority
+                className="w-5 h-auto object-contain"
+              />
+            </div>
+            <span className="text-[17px] font-bold tracking-tight text-white flex items-center gap-1">
+              Locra <span className="text-accent font-semibold">AI</span>
             </span>
           </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-1 lg:gap-2">
-            {siteConfig.nav.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "px-3.5 py-2 rounded-lg text-sm font-medium transition-colors hover:text-white hover:bg-white/[0.06]",
-                    isActive
-                      ? "text-white font-semibold bg-white/[0.08]"
-                      : "text-white/60"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+            {NAV_LINKS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Right Action CTAs */}
+          {/* Right Action CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/contact"
-              className="text-sm font-medium text-white/60 hover:text-white px-3 py-2 transition-colors"
+            <a
+              href="#download-app"
+              className="orange-pill-btn inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-xs font-bold text-[#140A02] transition-all active:scale-[0.98]"
             >
-              Sign In
-            </Link>
-            <Link
-              href="/#download-app"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-accent-soft to-accent px-4 py-2.5 text-sm font-semibold text-[#1A0F02] accent-glow hover:brightness-110 transition-all active:scale-[0.98]"
-            >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-3.5 h-3.5 fill-current" />
               <span>Get Locra</span>
-            </Link>
+            </a>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Trigger */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden rounded-lg p-2 text-white/70 hover:bg-white/[0.06] hover:text-white focus:outline-none focus:ring-2 focus:ring-accent"
+            className="md:hidden rounded-full p-2 text-white/75 hover:bg-white/[0.08] hover:text-white focus:outline-none"
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </nav>
-      </Container>
+      </div>
 
-      {/* Mobile Drawer / Sheet Menu */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-[60px] bottom-0 bg-app-2/95 backdrop-blur-xl border-b border-white/10 z-50 p-6 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-col gap-2">
-            <div className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-1">
-              Menu
-            </div>
-            {siteConfig.nav.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-colors",
-                    isActive
-                      ? "bg-accent/[0.12] text-accent font-semibold"
-                      : "text-white/80 hover:bg-white/[0.05]"
-                  )}
-                >
-                  <span>{item.label}</span>
-                  <ArrowRight className="w-4 h-4 text-white/40" />
-                </Link>
-              );
-            })}
+        <div className="md:hidden pointer-events-auto max-w-sm mx-auto mt-2 rounded-3xl glass-panel p-5 animate-in slide-in-from-top-3 duration-200 border border-white/10 shadow-2xl">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-3 mb-1">
+              Navigation
+            </span>
+            {NAV_LINKS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:bg-white/[0.06] transition-colors"
+              >
+                <span>{item.label}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-white/40" />
+              </Link>
+            ))}
           </div>
 
-          <div className="flex flex-col gap-3 pt-6 border-t border-white/10">
-            <Link
-              href="/contact"
+          <div className="mt-4 pt-3 border-t border-white/10 flex flex-col gap-2">
+            <a
+              href="#download-app"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center rounded-xl border border-white/15 py-3 text-sm font-semibold text-white/80 hover:bg-white/[0.05]"
+              className="orange-pill-btn flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-[#140A02] text-center"
             >
-              Sign In
-            </Link>
-            <Link
-              href="/#download-app"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-accent-soft to-accent py-3.5 text-sm font-semibold text-[#1A0F02] accent-glow hover:brightness-110"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Get Locra for iOS &amp; Android</span>
-            </Link>
+              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <span>Download on Google Play</span>
+            </a>
           </div>
         </div>
       )}
