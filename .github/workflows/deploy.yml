@@ -53,53 +53,54 @@ jobs:
 
       - name: 🔐 Execute Remote Deployment over SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/home/codesec/locra_app' }}
+          TRAVEL_AI_API_KEY: ${{ secrets.TRAVEL_AI_API_KEY }}
+          TRAVEL_AI_API_URL: ${{ secrets.TRAVEL_AI_API_URL || 'https://travel-api.codesec.me' }}
+          REPO_URL: "https://github.com/${{ github.repository }}.git"
+          BRANCH: ${{ github.ref_name }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
+          envs: DEPLOY_PATH,TRAVEL_AI_API_KEY,TRAVEL_AI_API_URL,REPO_URL,BRANCH
           script_stop: true
           script: |
+            set -e
             echo "🚀 Starting Locra AI deployment on $(hostname)..."
             
-            # 1. Ensure deployment directory exists
-            DEPLOY_DIR="${{ secrets.DEPLOY_PATH || '/home/codesec/locra_app' }}"
-            mkdir -p "$DEPLOY_DIR"
-            cd "$DEPLOY_DIR"
+            TARGET_DIR="${DEPLOY_PATH:-/home/codesec/locra_app}"
+            echo "📂 Deploy directory: $TARGET_DIR"
+            mkdir -p "$TARGET_DIR"
+            cd "$TARGET_DIR"
             
-            # 2. Pull latest code if git repo initialized, otherwise clone
             if [ -d ".git" ]; then
-              echo "🔄 Pulling latest changes from Git..."
-              git fetch --all
-              git reset --hard origin/${{ github.ref_name }}
+              echo "🔄 Updating existing Git repository..."
+              git remote set-url origin "$REPO_URL" 2>/dev/null || true
+              git fetch origin "$BRANCH"
+              git reset --hard "origin/$BRANCH"
             else
-              echo "📥 Cloning repository into $DEPLOY_DIR..."
-              git clone "${{ github.server_url }}/${{ github.repository }}.git" .
+              echo "📥 Initializing and fetching Git repository..."
+              git init
+              git remote add origin "$REPO_URL" 2>/dev/null || git remote set-url origin "$REPO_URL"
+              git fetch origin "$BRANCH"
+              git checkout -f -B "$BRANCH" "origin/$BRANCH"
             fi
-
-            # 3. Create or update production .env file
-            echo "⚙️ Configuring production environment..."
-            cat << 'EOF' > .env
-            NODE_ENV=production
-            PORT=3000
-            TRAVEL_AI_API_KEY=${{ secrets.TRAVEL_AI_API_KEY }}
-            TRAVEL_AI_API_URL=${{ secrets.TRAVEL_AI_API_URL || 'https://travel-api.codesec.me' }}
-            EOF
-
-            # 4. Ensure Dokploy / Traefik external network exists
-            echo "🌐 Ensuring Docker networks..."
-            docker network inspect dokploy-network >/dev/null 2>&1 || docker network create dokploy-network
-
-            # 5. Build and start containers with Traefik routing
-            echo "🐳 Building and starting containers..."
+            
+            echo "⚙️ Writing production .env configuration..."
+            printf "NODE_ENV=production\nPORT=3000\nTRAVEL_AI_API_KEY=%s\nTRAVEL_AI_API_URL=%s\n" "$TRAVEL_AI_API_KEY" "$TRAVEL_AI_API_URL" > .env
+            
+            echo "🌐 Ensuring Docker network 'dokploy-network'..."
+            docker network inspect dokploy-network >/dev/null 2>&1 || docker network create dokploy-network || true
+            
+            echo "🐳 Building and starting Docker container with Traefik..."
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
-
-            # 6. Cleanup dangling images to preserve server disk space
-            echo "🧹 Cleaning up old unused images..."
-            docker image prune -f
-
-            # 7. Verification check
+            
+            echo "🧹 Cleaning up dangling images..."
+            docker image prune -f || true
+            
             echo "✅ Container status:"
             docker ps --filter "name=locra-app"
-
+            
             echo "🎉 Locra AI successfully deployed to https://locra.app and https://www.locra.app!"
