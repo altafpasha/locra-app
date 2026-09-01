@@ -1,0 +1,49 @@
+# ==============================================================================
+# Locra AI — Production Docker Compose (Dokploy & Traefik v3.x Integration)
+# ==============================================================================
+
+services:
+  locra-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: locra-app:latest
+    container_name: locra-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TRAVEL_AI_API_KEY=${TRAVEL_AI_API_KEY}
+      - TRAVEL_AI_API_URL=${TRAVEL_AI_API_URL:-https://travel-api.codesec.me}
+    networks:
+      - dokploy-network
+      - internal-net
+    labels:
+      # Enable Traefik for this service
+      - "traefik.enable=true"
+      - "traefik.docker.network=dokploy-network"
+
+      # ----------------- HTTP (Port 80) -> Redirect to HTTPS -----------------
+      - "traefik.http.routers.locra-http.rule=Host(`locra.app`) || Host(`www.locra.app`)"
+      - "traefik.http.routers.locra-http.entrypoints=web"
+      - "traefik.http.routers.locra-http.middlewares=locra-https-redirect"
+      - "traefik.http.middlewares.locra-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.locra-https-redirect.redirectscheme.permanent=true"
+
+      # ----------------- HTTPS (Port 443) -> TLS & Let's Encrypt -----------------
+      - "traefik.http.routers.locra-https.rule=Host(`locra.app`) || Host(`www.locra.app`)"
+      - "traefik.http.routers.locra-https.entrypoints=websecure"
+      - "traefik.http.routers.locra-https.tls=true"
+      - "traefik.http.routers.locra-https.tls.certresolver=letsencrypt"
+
+      # ----------------- Internal Load Balancer Port -----------------
+      - "traefik.http.services.locra-service.loadbalancer.server.port=3000"
+
+networks:
+  # External network connected to Dokploy's Traefik instance (dokploy-traefik)
+  dokploy-network:
+    external: true
+  internal-net:
+    driver: bridge

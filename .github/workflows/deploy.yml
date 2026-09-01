@@ -1,0 +1,105 @@
+name: 🚀 Build & Deploy Locra AI (Production)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  # ============================================================================
+  # 1. Validation & Build Test
+  # ============================================================================
+  build-and-test:
+    name: 🧪 Validate & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Application (Standalone Verification)
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+  # ============================================================================
+  # 2. Remote Deployment via SSH to Dokploy / Traefik Host
+  # ============================================================================
+  deploy:
+    name: 🚢 Deploy to Production Server
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔐 Execute Remote Deployment over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            echo "🚀 Starting Locra AI deployment on $(hostname)..."
+            
+            # 1. Ensure deployment directory exists
+            DEPLOY_DIR="${{ secrets.DEPLOY_PATH || '/home/codesec/locra_app' }}"
+            mkdir -p "$DEPLOY_DIR"
+            cd "$DEPLOY_DIR"
+            
+            # 2. Pull latest code if git repo initialized, otherwise clone
+            if [ -d ".git" ]; then
+              echo "🔄 Pulling latest changes from Git..."
+              git fetch --all
+              git reset --hard origin/${{ github.ref_name }}
+            else
+              echo "📥 Cloning repository into $DEPLOY_DIR..."
+              git clone "${{ github.server_url }}/${{ github.repository }}.git" .
+            fi
+
+            # 3. Create or update production .env file
+            echo "⚙️ Configuring production environment..."
+            cat << 'EOF' > .env
+            NODE_ENV=production
+            PORT=3000
+            TRAVEL_AI_API_KEY=${{ secrets.TRAVEL_AI_API_KEY }}
+            TRAVEL_AI_API_URL=${{ secrets.TRAVEL_AI_API_URL || 'https://travel-api.codesec.me' }}
+            EOF
+
+            # 4. Ensure Dokploy / Traefik external network exists
+            echo "🌐 Ensuring Docker networks..."
+            docker network inspect dokploy-network >/dev/null 2>&1 || docker network create dokploy-network
+
+            # 5. Build and start containers with Traefik routing
+            echo "🐳 Building and starting containers..."
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+
+            # 6. Cleanup dangling images to preserve server disk space
+            echo "🧹 Cleaning up old unused images..."
+            docker image prune -f
+
+            # 7. Verification check
+            echo "✅ Container status:"
+            docker ps --filter "name=locra-app"
+
+            echo "🎉 Locra AI successfully deployed to https://locra.app and https://www.locra.app!"

@@ -1,0 +1,512 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700&display=swap">
+<style>
+  :root{
+    --bg-primary:#070709; --bg-secondary:#0E0E14; --bg-tertiary:#161620;
+    --text-primary:#FFFFFF; --text-secondary:rgba(255,255,255,0.70); --text-tertiary:rgba(255,255,255,0.42); --text-disabled:rgba(255,255,255,0.22);
+    --accent-amber:#FF8A3D; --accent-amber-glow:rgba(255,138,61,0.18); --brand-gold:#FFB000; --brand-cyan:#38BDF8; --brand-purple:#A855F7;
+    --success-emerald:#10B981; --warning-amber:#F59E0B; --danger-rose:#EF4444;
+    --glass-surface:rgba(18,18,24,0.72); --glass-surface-strong:rgba(24,24,32,0.88); --glass-fill:rgba(255,255,255,0.04);
+    --glass-border:rgba(255,255,255,0.08); --glass-border-light:rgba(255,255,255,0.14); --glass-border-accent:rgba(255,138,61,0.35);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#070709;background:linear-gradient(180deg,#070709 0%,#0E0E14 55%,#0B0B10 100%);color:#fff;font-family:'Geist',ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:var(--accent-amber);text-decoration:none;}
+  a:hover{color:var(--brand-gold);}
+  .mono{font-family:'Geist Mono',ui-monospace,'SF Mono',monospace;}
+  .wrap{padding:0 22px;}
+  .glass{background:rgba(18,18,24,0.75);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.09);box-shadow:0 16px 36px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);border-radius:20px;}
+  .glass-strong{background:rgba(24,24,32,0.88);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.14);box-shadow:0 16px 36px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.1);border-radius:20px;}
+  .pill{background:rgba(18,18,24,0.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,0.08);border-radius:999px;}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em;border:1px solid;white-space:nowrap;}
+  .badge-amber{background:var(--accent-amber-glow);color:var(--accent-amber);border-color:var(--glass-border-accent);}
+  .badge-emerald{background:rgba(16,185,129,0.12);color:var(--success-emerald);border-color:rgba(16,185,129,0.3);}
+  .badge-cyan{background:rgba(56,189,248,0.12);color:var(--brand-cyan);border-color:rgba(56,189,248,0.3);}
+  .badge-purple{background:rgba(168,85,247,0.12);color:var(--brand-purple);border-color:rgba(168,85,247,0.3);}
+  .badge-neutral{background:var(--glass-fill);color:var(--text-secondary);border-color:var(--glass-border);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:14px;font-weight:700;font-size:14.5px;padding:15px 20px;border:1px solid transparent;font-family:inherit;}
+  .btn-accent{background:linear-gradient(135deg,#FF9843 0%,#FF8A3D 100%);color:#1A0F02;box-shadow:0 10px 22px rgba(255,138,61,0.32);}
+  .btn-ghost{background:rgba(255,255,255,0.04);color:#fff;border-color:rgba(255,255,255,0.14);}
+  .btn-dark{background:rgba(24,24,32,0.9);border-color:rgba(255,255,255,0.14);color:#fff;}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-amber);}
+  .h1{font-size:38px;font-weight:800;line-height:1.08;letter-spacing:-0.015em;color:#fff;margin:0;}
+  .h2{font-size:29px;font-weight:800;line-height:1.14;letter-spacing:-0.01em;color:#fff;margin:0;}
+  .h3{font-size:18px;font-weight:700;line-height:1.3;color:#fff;margin:0;}
+  .body-lg{font-size:16px;line-height:1.6;color:var(--text-secondary);margin:0;font-weight:400;}
+  .body{font-size:14px;line-height:1.6;color:var(--text-secondary);margin:0;font-weight:400;}
+  .tiny{font-size:11.5px;line-height:1.5;color:var(--text-tertiary);}
+  .grad-text{background:linear-gradient(135deg,#FF9843 0%,#FFB000 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .section-head{display:flex;flex-direction:column;align-items:flex-start;gap:12px;text-align:left;}
+</style>
+</helmet>
+
+<div style="position:relative;overflow:hidden;">
+
+  <!-- ================= NAV ================= -->
+  <div style="padding:18px 0 4px;">
+    <div class="wrap">
+      <div class="pill" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 9px 9px 16px;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#FF9843 0%,#FF8A3D 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(255,138,61,0.35);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1A0F02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="#1A0F02" stroke="none"/></svg>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <span style="font-size:16.5px;font-weight:800;color:#fff;letter-spacing:-0.01em;">Locra</span>
+            <span class="badge badge-amber" style="padding:2px 8px;font-size:9.5px;">AI</span>
+          </div>
+        </div>
+        <span style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= HERO ================= -->
+  <div style="position:relative;padding:36px 0 64px;">
+    <div style="position:absolute;top:-30px;left:-60px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,138,61,0.18) 0%,rgba(255,138,61,0) 70%);pointer-events:none;"></div>
+    <div class="wrap" style="position:relative;">
+      <span class="badge badge-amber">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none"><path d="M12 2 L13.8 8.2 L20 10 L13.8 11.8 L12 18 L10.2 11.8 L4 10 L10.2 8.2 Z"/></svg>
+        Reel-to-Trip Travel Planning
+      </span>
+      <h1 class="h1" style="margin-top:18px;">Turn Instagram Reels into <span class="grad-text">Real Trips</span> in Seconds.</h1>
+      <p class="body-lg" style="margin-top:14px;">The collaborative, AI-native travel planner that extracts verified places from reels, builds day-by-day itineraries, and splits group expenses effortlessly.</p>
+
+      <div style="display:flex;flex-direction:column;gap:11px;margin-top:24px;">
+        <span class="btn btn-dark" style="width:100%;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M16.5 3c.1 1.2-.4 2.4-1.1 3.2-.8.9-2 1.6-3.1 1.5-.1-1.1.5-2.3 1.2-3.1.8-.9 2.1-1.5 3-1.6zM20.8 17.3c-.5 1.2-1.1 2.3-1.9 3.3-1 1.3-2 2.6-3.6 2.6-1.5 0-2-.9-3.7-.9-1.7 0-2.3.9-3.7.9-1.5 0-2.6-1.4-3.6-2.7-2-2.7-3.5-7.6-1.5-10.9 1-1.6 2.7-2.7 4.6-2.7 1.5 0 2.9 1 3.7 1 .8 0 2.5-1.2 4.2-1 .7 0 2.7.3 4 2.1-.1.1-2.4 1.4-2.4 4.1 0 1.9.9 3.2 2.9 4.3z"/></svg>
+          <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;">
+            <span style="font-size:9px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;">Download on the</span>
+            <span style="font-size:14px;font-weight:700;color:#fff;">App Store</span>
+          </span>
+        </span>
+        <span class="btn btn-dark" style="width:100%;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3.609 1.814L13.792 12 3.61 22.186a2.41 2.41 0 0 1-.61-.924V2.738a2.4 2.4 0 0 1 .609-.924z" fill="#38BDF8"/>
+            <path d="M17.477 8.315L5.05 1.14a2.27 2.27 0 0 0-1.44-.326L13.792 12l3.685-3.685z" fill="#10B981"/>
+            <path d="M3.61 23.186c.45.093.94-.02 1.44-.326l12.427-7.175L13.792 12 3.61 22.186z" fill="#EF4444"/>
+            <path d="M20.89 10.347l-3.413-1.972L13.792 12l3.685 3.685 3.413-1.972c1.196-.69 1.196-1.816 0-2.506z" fill="#FFB000"/>
+          </svg>
+          <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;">
+            <span style="font-size:9px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;">Get it on</span>
+            <span style="font-size:14px;font-weight:700;color:#fff;">Google Play</span>
+          </span>
+        </span>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:10px 18px;padding-top:18px;margin-top:18px;border-top:1px solid var(--glass-border);">
+        <span style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--text-secondary);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L4 5 v6 c0 5 3.5 8.5 8 9 c4.5-0.5 8-4 8-9 V5 Z"/><path d="M9 12 l2 2 l4-4"/></svg>
+          Google Place Verified
+        </span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--text-secondary);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Route &amp; Distance Aware
+        </span>
+      </div>
+
+      <!-- Phone + floating badges, mobile stacked-around layout -->
+      <div style="position:relative;margin-top:44px;display:flex;flex-direction:column;align-items:center;">
+        <div style="position:absolute;top:80px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,138,61,0.16) 0%,rgba(168,85,247,0.08) 55%,transparent 75%);filter:blur(8px);"></div>
+
+        <div style="position:relative;width:250px;border-radius:38px;background:#050506;padding:9px;box-shadow:0 30px 70px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.08);z-index:2;">
+          <div style="position:absolute;top:16px;left:50%;transform:translateX(-50%);width:80px;height:16px;border-radius:999px;background:#000;z-index:5;"></div>
+          <div style="position:relative;border-radius:30px;background:var(--bg-secondary);overflow:hidden;height:460px;border:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;">
+            <div style="padding:12px 16px 3px;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <span style="font-size:8.5px;font-weight:700;color:var(--accent-amber);text-transform:uppercase;letter-spacing:.06em;">Active Trip</span>
+                <p style="margin:1px 0 0;font-size:12px;font-weight:800;color:#fff;">Coorg &amp; Chikkamagaluru</p>
+              </div>
+              <span style="width:20px;height:20px;border-radius:999px;background:var(--accent-amber);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#1A0F02;">A</span>
+            </div>
+            <div style="margin:8px 14px 0;padding:6px 10px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;" class="glass">
+              <span style="font-size:9px;font-weight:600;color:var(--text-secondary);">4 Days · 11 Places</span>
+              <span style="font-size:9px;font-weight:700;color:var(--accent-amber);">AI Optimized</span>
+            </div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:7px;overflow:hidden;">
+              <div class="glass" style="padding:9px 10px;border-radius:12px;">
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <span style="font-size:10.5px;font-weight:700;color:#fff;">Abbey Falls Viewpoint</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.2 l2.6 2.6 l5-5.6"/></svg>
+                </div>
+                <p style="margin:5px 0 0;font-size:8.5px;color:var(--text-tertiary);">Madikeri · 4.7 (2.1k)</p>
+              </div>
+              <div class="glass" style="padding:9px 10px;border-radius:12px;">
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <span style="font-size:10.5px;font-weight:700;color:#fff;">Cafe Terrace 1870</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.2 l2.6 2.6 l5-5.6"/></svg>
+                </div>
+                <p style="margin:5px 0 0;font-size:8.5px;color:var(--text-tertiary);">Day 2 slot · open until 9 PM</p>
+              </div>
+            </div>
+            <div style="padding:9px 12px;border-top:1px solid var(--glass-border);display:flex;align-items:center;gap:7px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/></svg>
+              <span style="font-size:8.5px;color:var(--text-tertiary);">&ldquo;Closest coffee, Day 2?&rdquo;</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:24px;position:relative;z-index:3;">
+          <div class="glass-strong" style="padding:12px 13px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L4 5 v6 c0 5 3.5 8.5 8 9 c4.5-0.5 8-4 8-9 V5 Z"/><path d="M9 12 l2 2 l4-4"/></svg>
+              <span style="font-size:9.5px;font-weight:700;color:var(--success-emerald);">Verified</span>
+            </div>
+            <p style="margin:0;font-size:11.5px;font-weight:700;color:#fff;">Barki Waterfall</p>
+            <span style="font-size:10px;font-weight:700;color:var(--brand-gold);">98% Confidence</span>
+          </div>
+          <div class="glass-strong" style="padding:12px 13px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M16 7.5c0-1.7-1.9-2.6-4-2.6s-4 1-4 2.6c0 1.5 1.5 2 4 2.6c2.5.6 4 1.1 4 2.6c0 1.6-1.9 2.5-4 2.5s-4-.9-4-2.5"/></svg>
+              <span style="font-size:9.5px;font-weight:700;color:var(--accent-amber);">Split</span>
+            </div>
+            <p style="margin:0;font-size:11.5px;font-weight:700;color:#fff;">₹3,000 Dinner</p>
+            <span class="tiny">→ ₹1,000 each</span>
+          </div>
+          <div class="glass-strong" style="padding:12px 13px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span style="position:relative;width:22px;height:22px;border-radius:999px;background:linear-gradient(135deg,#38BDF8,#0284C7);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;">A<span style="position:absolute;bottom:-1px;right:-1px;width:7px;height:7px;border-radius:999px;background:#10B981;border:1.5px solid #181820;"></span></span>
+              <div>
+                <p style="margin:0;font-size:10.5px;font-weight:700;color:#fff;">Altaf</p>
+                <p style="margin:0;font-size:9px;font-weight:600;color:var(--success-emerald);">Active now</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass-strong" style="padding:12px 13px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/></svg>
+              <span style="font-size:9.5px;font-weight:700;color:var(--brand-purple);">Voice AI</span>
+            </div>
+            <p class="tiny">&ldquo;Added cafe to Day 2&rdquo;</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= REEL EXTRACTOR DEMO ================= -->
+  <div style="position:relative;background:var(--bg-secondary);padding:60px 0;border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);">
+    <div class="wrap">
+      <span class="badge badge-amber">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none"><path d="M12 2 L13.8 8.2 L20 10 L13.8 11.8 L12 18 L10.2 11.8 L4 10 L10.2 8.2 Z"/></svg>
+        Reel-First Workflow
+      </span>
+      <h2 class="h2" style="margin-top:14px;">See a place. Save it. <span class="grad-text">Go there.</span></h2>
+      <p class="body-lg" style="margin-top:12px;">Locra's AI identifies travel spots from Reels, photos, and links, verifying exact locations against Google Places.</p>
+
+      <div style="margin-top:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div class="glass" style="padding:12px 6px;text-align:center;"><span class="mono" style="font-size:11px;font-weight:700;color:var(--accent-amber);">01</span><p style="margin:5px 0 0;font-size:10.5px;font-weight:600;color:#fff;">Reel</p></div>
+        <div class="glass" style="padding:12px 6px;text-align:center;"><span class="mono" style="font-size:11px;font-weight:700;color:var(--accent-amber);">02</span><p style="margin:5px 0 0;font-size:10.5px;font-weight:600;color:#fff;">Share</p></div>
+        <div class="glass" style="padding:12px 6px;text-align:center;"><span class="mono" style="font-size:11px;font-weight:700;color:var(--accent-amber);">03</span><p style="margin:5px 0 0;font-size:10.5px;font-weight:600;color:#fff;">Trip</p></div>
+        <div class="glass" style="padding:12px 6px;text-align:center;"><span class="mono" style="font-size:11px;font-weight:700;color:var(--accent-amber);">04</span><p style="margin:5px 0 0;font-size:10.5px;font-weight:600;color:#fff;">AI Extract</p></div>
+        <div style="grid-column:span 2;padding:12px 6px;text-align:center;border-radius:16px;background:var(--accent-amber-glow);border:1px solid var(--glass-border-accent);"><span class="mono" style="font-size:11px;font-weight:700;color:var(--accent-amber);">05</span><p style="margin:5px 0 0;font-size:10.5px;font-weight:700;color:var(--accent-amber);">Verified &amp; Saved!</p></div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:11px;">
+        <div class="glass-strong" style="padding:14px;border-color:var(--glass-border-accent);">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:10.5px;font-weight:700;color:var(--text-secondary);">@wanderlust_japan</span><span class="tiny">Kyoto</span></div>
+          <p style="margin:7px 0;font-size:12.5px;font-weight:700;color:#fff;line-height:1.4;">Hidden alleyway cafe with 90-year-old wooden architecture in Kyoto</p>
+          <span style="font-size:10px;font-weight:600;color:var(--accent-amber);">Target: Japan Autumn</span>
+        </div>
+
+        <div class="glass" style="padding:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--glass-border);">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:28px;height:28px;border-radius:9px;background:var(--accent-amber-glow);display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none"><path d="M12 2 L13.8 8.2 L20 10 L13.8 11.8 L12 18 L10.2 11.8 L4 10 L10.2 8.2 Z"/></svg></div>
+              <p style="margin:0;font-size:12px;font-weight:700;color:#fff;">Extraction Pipeline</p>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:11px;">
+            <div class="glass-strong" style="padding:13px;">
+              <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;font-weight:700;color:#fff;">Cafe Drip Kyoto</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.2 l2.6 2.6 l5-5.6"/></svg></div>
+              <p style="margin:4px 0 0;font-size:10px;color:var(--text-tertiary);">Nakagyo Ward, Kyoto</p>
+              <div style="display:flex;gap:14px;margin-top:9px;padding-top:8px;border-top:1px solid var(--glass-border);">
+                <span style="font-size:10.5px;font-weight:700;color:var(--accent-amber);display:flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none"><polygon points="12 2.5 14.9 9 22 9.6 16.7 14.3 18.3 21.3 12 17.6 5.7 21.3 7.3 14.3 2 9.6 9.1 9"/></svg>4.8</span>
+                <span style="font-size:10.5px;font-weight:700;color:var(--success-emerald);">99% Match</span>
+              </div>
+            </div>
+            <div class="glass-strong" style="padding:13px;">
+              <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;font-weight:700;color:#fff;">Takase River Promenade</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.2 l2.6 2.6 l5-5.6"/></svg></div>
+              <p style="margin:4px 0 0;font-size:10px;color:var(--text-tertiary);">Shimogyo Ward, Kyoto</p>
+              <div style="display:flex;gap:14px;margin-top:9px;padding-top:8px;border-top:1px solid var(--glass-border);">
+                <span style="font-size:10.5px;font-weight:700;color:var(--accent-amber);display:flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none"><polygon points="12 2.5 14.9 9 22 9.6 16.7 14.3 18.3 21.3 12 17.6 5.7 21.3 7.3 14.3 2 9.6 9.1 9"/></svg>4.7</span>
+                <span style="font-size:10.5px;font-weight:700;color:var(--success-emerald);">96% Match</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BENTO GRID ================= -->
+  <div style="padding:60px 0;">
+    <div class="wrap">
+      <span class="badge badge-neutral">Product Capabilities</span>
+      <h2 class="h2" style="margin-top:14px;">Everything you need for seamless travel.</h2>
+      <p class="body-lg" style="margin-top:12px;">Extraction, verification, scheduling, and collaboration in one app.</p>
+
+      <div style="margin-top:26px;display:flex;flex-direction:column;gap:16px;">
+        <!-- Card 1 -->
+        <div class="glass" style="padding:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:var(--accent-amber-glow);display:flex;align-items:center;justify-content:center;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><line x1="8.2" y1="10.8" x2="15.8" y2="6.2"/><line x1="8.2" y1="13.2" x2="15.8" y2="17.8"/></svg>
+            </div>
+            <span class="badge badge-amber">Extraction</span>
+          </div>
+          <h3 class="h3">One Reel. Multiple verified spots.</h3>
+          <p class="body" style="margin-top:8px;">Waterfall, cafe, viewpoint, resort — Locra separates and verifies each one automatically.</p>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+            <span class="glass-strong" style="padding:7px 11px;font-size:10.5px;font-weight:600;color:#fff;border-radius:10px;">Waterfall · 96%</span>
+            <span class="glass-strong" style="padding:7px 11px;font-size:10.5px;font-weight:600;color:#fff;border-radius:10px;">Cafe · 92%</span>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="glass" style="padding:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(56,189,248,0.14);display:flex;align-items:center;justify-content:center;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.2 20c0-3.3 2.6-6 5.8-6s5.8 2.7 5.8 6"/><circle cx="17.2" cy="9" r="2.4"/></svg>
+            </div>
+            <span class="badge badge-cyan">Collaboration</span>
+          </div>
+          <h3 class="h3">Plan together, in one thread.</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+            <div class="glass-strong" style="padding:10px 12px;font-size:11.5px;color:var(--text-secondary);"><b style="color:#fff;">Altaf</b> added Barki Waterfall</div>
+            <div class="glass-strong" style="padding:10px 12px;font-size:11.5px;color:var(--text-secondary);"><b style="color:#fff;">John</b> logged ₹3,000 for dinner</div>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="glass" style="padding:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:var(--accent-amber-glow);display:flex;align-items:center;justify-content:center;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <span class="badge badge-amber">Itinerary</span>
+          </div>
+          <h3 class="h3">Drag, drop, done.</h3>
+          <div style="margin-top:12px;padding-left:12px;border-left:2px solid var(--glass-border-accent);display:flex;flex-direction:column;gap:10px;">
+            <div><span style="font-size:10px;font-weight:700;color:var(--accent-amber);">09:30 AM</span><p style="margin:1px 0 0;font-size:11.5px;font-weight:600;color:#fff;">Fuglen Tokyo · 12 min walk</p></div>
+            <div><span style="font-size:10px;font-weight:700;color:var(--text-tertiary);">11:15 AM</span><p style="margin:1px 0 0;font-size:11.5px;font-weight:600;color:#fff;">Yoyogi Park &amp; Meiji Shrine</p></div>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="glass" style="padding:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(16,185,129,0.14);display:flex;align-items:center;justify-content:center;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M16 7.5c0-1.7-1.9-2.6-4-2.6s-4 1-4 2.6c0 1.5 1.5 2 4 2.6c2.5.6 4 1.1 4 2.6c0 1.6-1.9 2.5-4 2.5s-4-.9-4-2.5"/></svg>
+            </div>
+            <span class="badge badge-emerald">Expenses</span>
+          </div>
+          <h3 class="h3">Auto-settled, minimal transfers.</h3>
+          <div class="glass-strong" style="margin-top:12px;padding:12px;">
+            <p style="margin:0;font-size:10px;color:var(--text-tertiary);">Total group spending</p>
+            <p style="margin:2px 0 0;font-size:16px;font-weight:800;color:#fff;">$1,420.00</p>
+            <p style="margin:6px 0 0;font-size:10.5px;font-weight:600;color:var(--success-emerald);">Marcus owes Elena $355</p>
+          </div>
+        </div>
+        <!-- Card 5 -->
+        <div class="glass" style="padding:24px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(168,85,247,0.14);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 3 21 8 12 13 3 8 12 3"/><polyline points="3 13 12 18 21 13"/></svg>
+          </div>
+          <h3 class="h3">Offline maps. Live friends.</h3>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:7px;">
+            <span style="width:8px;height:8px;border-radius:999px;background:#10B981;"></span>
+            <span style="font-size:11px;color:var(--text-secondary);">Altaf · Active now</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VOICE AI BANNER ================= -->
+  <div style="position:relative;background:var(--bg-tertiary);padding:52px 0;border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);">
+    <div class="wrap" style="display:flex;flex-direction:column;align-items:flex-start;gap:18px;">
+      <div style="position:relative;width:64px;height:64px;border-radius:999px;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.3);display:flex;align-items:center;justify-content:center;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+      </div>
+      <span class="badge badge-purple">Voice AI Co-Pilot</span>
+      <div style="display:flex;align-items:flex-end;gap:3px;height:22px;">
+        <span style="width:3.5px;height:30%;border-radius:2px;background:linear-gradient(180deg,#A855F7,#38BDF8);"></span>
+        <span style="width:3.5px;height:60%;border-radius:2px;background:linear-gradient(180deg,#A855F7,#38BDF8);"></span>
+        <span style="width:3.5px;height:90%;border-radius:2px;background:linear-gradient(180deg,#A855F7,#38BDF8);"></span>
+        <span style="width:3.5px;height:45%;border-radius:2px;background:linear-gradient(180deg,#A855F7,#38BDF8);"></span>
+        <span style="width:3.5px;height:100%;border-radius:2px;background:linear-gradient(180deg,#A855F7,#38BDF8);"></span>
+        <span style="width:3.5px;height:55%;border-radius:2px;background:linear-gradient(180deg,#A855F7,#38BDF8);"></span>
+      </div>
+      <p style="margin:0;font-size:15px;font-weight:700;color:#fff;">&ldquo;Add a coffee break at Blue Tokai at 4 PM&rdquo;</p>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.2 l2.6 2.6 l5-5.6"/></svg>
+        <span class="body">Added to Day 2 · 4:00 PM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PRICING ================= -->
+  <div style="padding:60px 0;">
+    <div class="wrap">
+      <span class="badge badge-neutral">Simple Transparent Pricing</span>
+      <h2 class="h2" style="margin-top:14px;">Start free. Upgrade when ready.</h2>
+      <p class="body-lg" style="margin-top:12px;">Free forever to collect and verify places. Unlock unlimited extraction with Pro.</p>
+
+      <div style="margin-top:26px;display:flex;flex-direction:column;gap:18px;">
+        <div class="glass" style="padding:26px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Free Forever</span>
+            <span class="badge badge-neutral">Starter</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:5px;margin-bottom:8px;"><span style="font-size:34px;font-weight:800;color:#fff;">$0</span><span class="tiny">/ month</span></div>
+          <p class="body">Save and organize spots from social media.</p>
+          <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--glass-border);display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:8px;"><svg width="14" height="14" style="margin-top:2px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="body">10 Reel extractions / month</span></div>
+            <div style="display:flex;gap:8px;"><svg width="14" height="14" style="margin-top:2px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="body">Google Places verification</span></div>
+            <div style="display:flex;gap:8px;"><svg width="14" height="14" style="margin-top:2px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="body">Unlimited trips &amp; saved pins</span></div>
+            <div style="display:flex;gap:8px;"><svg width="14" height="14" style="margin-top:2px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="body">Expense splitting</span></div>
+          </div>
+          <span class="btn btn-ghost" style="width:100%;margin-top:20px;">Get Started Free</span>
+        </div>
+
+        <div class="glass-strong" style="position:relative;padding:26px;border-color:var(--glass-border-accent);">
+          <span style="position:absolute;top:-12px;right:24px;background:linear-gradient(135deg,#FF9843,#FFB000);color:#1A0F02;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;">Most Popular</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-amber);">Locra Pro</span>
+            <span class="badge badge-amber">Full AI Power</span>
+          </div>
+          <div style="margin-bottom:8px;"><span style="font-size:22px;font-weight:800;color:#fff;">Pro Mobile Access</span></div>
+          <p class="body">For frequent travelers and group trip leaders.</p>
+          <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--glass-border);display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:8px;"><svg width="14" height="14" style="margin-top:2px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="body" style="color:#fff;">Unlimited Reel extractions</span></div>
+            <div style="display:flex;gap:8px;"><svg width="14" height="14" style="margin-top:2px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="body" style="color:#fff;">AI itinerary generation</span></div>
+            <div style="display:flex;gap:8px;"><svg width="14" height="14" style="margin-top:2px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="body" style="color:#fff;">Contextual AI Trip Assistant</span></div>
+          </div>
+          <span class="btn btn-accent" style="width:100%;margin-top:20px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#1A0F02" stroke="none"><path d="M12 2 L13.8 8.2 L20 10 L13.8 11.8 L12 18 L10.2 11.8 L4 10 L10.2 8.2 Z"/></svg>
+            Get Locra Pro
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TRUST + FAQ ================= -->
+  <div style="background:var(--bg-secondary);padding:60px 0;border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);">
+    <div class="wrap">
+      <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:44px;">
+        <span class="pill" style="padding:9px 15px;font-size:11px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L4 5 v6 c0 5 3.5 8.5 8 9 c4.5-0.5 8-4 8-9 V5 Z"/><path d="M9 12 l2 2 l4-4"/></svg>
+          Google Verified
+        </span>
+        <span class="pill" style="padding:9px 15px;font-size:11px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          Encrypted
+        </span>
+        <span class="pill" style="padding:9px 15px;font-size:11px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/></svg>
+          iOS &amp; Android
+        </span>
+      </div>
+
+      <span class="badge badge-neutral">Got Questions?</span>
+      <h2 class="h2" style="margin-top:14px;font-size:26px;">Frequently Asked Questions</h2>
+      <p class="body-lg" style="margin-top:12px;">Everything about Locra AI, Reel extraction, and trip planning.</p>
+
+      <div style="margin-top:26px;display:flex;flex-direction:column;gap:10px;">
+        <div class="glass-strong" style="padding:18px 20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:14px;font-weight:700;color:#fff;">What is Locra AI?</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transform:rotate(180deg);"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <p class="body" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--glass-border);">Locra AI extracts locations from your saved Reels and photos, verifies them on Google Maps, organizes them into trips, and helps you build smart itineraries with friends.</p>
+        </div>
+        <div class="glass" style="padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:13.5px;font-weight:700;color:#fff;">How does Locra find places from Reels?</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="glass" style="padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:13.5px;font-weight:700;color:#fff;">Does Locra work for group trips?</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="glass" style="padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:13.5px;font-weight:700;color:#fff;">Is Locra free?</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DOWNLOAD CTA ================= -->
+  <div style="position:relative;padding:64px 0;text-align:center;overflow:hidden;">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:420px;height:280px;background:radial-gradient(circle,rgba(255,138,61,0.14) 0%,transparent 70%);pointer-events:none;"></div>
+    <div class="wrap" style="position:relative;">
+      <span class="badge badge-amber" style="margin-bottom:18px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none"><path d="M12 2 L13.8 8.2 L20 10 L13.8 11.8 L12 18 L10.2 11.8 L4 10 L10.2 8.2 Z"/></svg>
+        Available on iOS &amp; Android
+      </span>
+      <h2 class="h2">Start planning your <span class="grad-text">next trip.</span></h2>
+      <p class="body-lg" style="margin-top:14px;">Save places from the content you love, and let Locra AI help you plan the journey.</p>
+      <div style="display:flex;flex-direction:column;gap:11px;margin-top:26px;">
+        <span class="btn btn-dark" style="width:100%;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M16.5 3c.1 1.2-.4 2.4-1.1 3.2-.8.9-2 1.6-3.1 1.5-.1-1.1.5-2.3 1.2-3.1.8-.9 2.1-1.5 3-1.6zM20.8 17.3c-.5 1.2-1.1 2.3-1.9 3.3-1 1.3-2 2.6-3.6 2.6-1.5 0-2-.9-3.7-.9-1.7 0-2.3.9-3.7.9-1.5 0-2.6-1.4-3.6-2.7-2-2.7-3.5-7.6-1.5-10.9 1-1.6 2.7-2.7 4.6-2.7 1.5 0 2.9 1 3.7 1 .8 0 2.5-1.2 4.2-1 .7 0 2.7.3 4 2.1-.1.1-2.4 1.4-2.4 4.1 0 1.9.9 3.2 2.9 4.3z"/></svg>
+          <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;"><span style="font-size:9px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;">Download on the</span><span style="font-size:14px;font-weight:700;color:#fff;">App Store</span></span>
+        </span>
+        <span class="btn btn-dark" style="width:100%;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3.609 1.814L13.792 12 3.61 22.186a2.41 2.41 0 0 1-.61-.924V2.738a2.4 2.4 0 0 1 .609-.924z" fill="#38BDF8"/>
+            <path d="M17.477 8.315L5.05 1.14a2.27 2.27 0 0 0-1.44-.326L13.792 12l3.685-3.685z" fill="#10B981"/>
+            <path d="M3.61 23.186c.45.093.94-.02 1.44-.326l12.427-7.175L13.792 12 3.61 22.186z" fill="#EF4444"/>
+            <path d="M20.89 10.347l-3.413-1.972L13.792 12l3.685 3.685 3.413-1.972c1.196-.69 1.196-1.816 0-2.506z" fill="#FFB000"/>
+          </svg>
+          <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;"><span style="font-size:9px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;">Get it on</span><span style="font-size:14px;font-weight:700;color:#fff;">Google Play</span></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <div style="background:#050506;padding:48px 0 32px;border-top:1px solid var(--glass-border);">
+    <div class="wrap">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;">
+        <div style="width:30px;height:30px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="var(--accent-amber)" stroke="none"/></svg>
+        </div>
+        <span style="font-size:16.5px;font-weight:800;color:#fff;">Locra AI</span>
+      </div>
+      <p class="body">Turn travel inspiration into your next trip. Save places from Reels, photos, and ideas, and let AI help you plan the journey.</p>
+      <div style="display:flex;gap:9px;margin-top:16px;">
+        <span style="width:32px;height:32px;border-radius:9px;background:var(--glass-fill);display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" fill="var(--text-secondary)" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg></span>
+        <span style="width:32px;height:32px;border-radius:9px;background:var(--glass-fill);display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" fill="var(--text-secondary)" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
+        <span style="width:32px;height:32px;border-radius:9px;background:var(--glass-fill);display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" fill="var(--text-secondary)" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;padding-top:28px;border-top:1px solid var(--glass-border);">
+        <div>
+          <p style="margin:0 0 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);">Product</p>
+          <div style="display:flex;flex-direction:column;gap:9px;"><span class="body">Features</span><span class="body">How It Works</span><span class="body">Pricing</span><span class="body">FAQ</span></div>
+        </div>
+        <div>
+          <p style="margin:0 0 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);">Company</p>
+          <div style="display:flex;flex-direction:column;gap:9px;"><span class="body">About</span><span class="body">Blog</span><span class="body">Contact</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top:28px;padding-top:22px;border-top:1px solid var(--glass-border);display:flex;flex-direction:column;gap:8px;">
+        <span class="tiny">© 2026 Locra AI. All rights reserved.</span>
+        <div style="display:flex;gap:16px;"><span class="tiny">Privacy</span><span class="tiny">Terms</span><span class="tiny">Support</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
