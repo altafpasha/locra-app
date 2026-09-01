@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { QrCode, Smartphone, X, Check, ExternalLink } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { QrCode, Smartphone, X, Check, ExternalLink, Sparkles } from "lucide-react";
+import QRCode from "qrcode";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +20,53 @@ export function AppStoreBadges({
 }: AppStoreBadgesProps) {
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [qrSvg, setQrSvg] = useState<string>("");
+  const [activePlatform, setActivePlatform] = useState<"android" | "ios">("android");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentUrl =
+    activePlatform === "android" ? siteConfig.links.googlePlay : siteConfig.links.appStore;
+
+  // Generate 100% genuine camera-scannable QR Code SVG
+  useEffect(() => {
+    QRCode.toString(
+      currentUrl,
+      {
+        type: "svg",
+        margin: 2,
+        color: {
+          dark: "#050507",
+          light: "#FFFFFF",
+        },
+        errorCorrectionLevel: "H",
+        width: 190,
+      },
+      (err, svg) => {
+        if (!err && svg) {
+          setQrSvg(svg);
+        }
+      }
+    );
+  }, [currentUrl]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showModal]);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(siteConfig.links.googlePlay);
+    navigator.clipboard.writeText(currentUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -30,6 +76,130 @@ export function AppStoreBadges({
     md: "h-13 px-4.5 py-2",
     lg: "h-14 px-5 py-2.5",
   };
+
+  const modalContent = showModal && mounted ? (
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-2xl"
+      style={{
+        WebkitBackdropFilter: "blur(24px)",
+      }}
+      onClick={() => setShowModal(false)}
+    >
+      <div
+        className="relative w-full max-w-sm sm:max-w-md rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 border border-white/20 shadow-2xl bg-[#0E0E16] text-white max-h-[92vh] overflow-y-auto no-scrollbar"
+        style={{
+          boxShadow: "0 30px 90px rgba(0,0,0,0.95), 0 0 50px rgba(255,122,26,0.2)",
+        }}
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setShowModal(false)}
+          className="absolute top-4 right-4 rounded-full p-2 text-white/60 hover:bg-white/[0.1] hover:text-white transition-colors"
+          aria-label="Close dialog"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex flex-col items-center text-center">
+          {/* Top Smartphone Badge */}
+          <div className="rounded-2xl bg-accent/20 border border-accent/35 p-3 text-accent mb-3 shadow-lg shadow-accent/20">
+            <Smartphone className="w-6 h-6" />
+          </div>
+
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            Scan with your phone
+          </h3>
+          <p className="text-xs text-white/70 mt-1 mb-4 max-w-xs leading-relaxed">
+            Point your phone camera to download Locra AI directly.
+          </p>
+
+          {/* Platform Selector Tabs */}
+          <div className="flex items-center gap-1.5 p-1 rounded-full bg-white/[0.08] border border-white/12 mb-4 w-full max-w-xs">
+            <button
+              type="button"
+              onClick={() => setActivePlatform("android")}
+              className={cn(
+                "flex-1 py-1.5 rounded-full text-xs font-bold transition-all text-center",
+                activePlatform === "android"
+                  ? "bg-accent text-[#140A02] shadow-md"
+                  : "text-white/60 hover:text-white"
+              )}
+            >
+              Google Play
+            </button>
+            <button
+              type="button"
+              onClick={() => setActivePlatform("ios")}
+              className={cn(
+                "flex-1 py-1.5 rounded-full text-xs font-bold transition-all text-center",
+                activePlatform === "ios"
+                  ? "bg-white text-black shadow-md"
+                  : "text-white/60 hover:text-white"
+              )}
+            >
+              App Store
+            </button>
+          </div>
+
+          {/* REAL CAMERA-SCANNABLE QR CODE CONTAINER */}
+          <div className="p-3.5 bg-white rounded-2xl shadow-2xl mb-4 flex flex-col items-center justify-center border-2 border-white/60">
+            <div className="w-44 h-44 flex items-center justify-center overflow-hidden">
+              {qrSvg ? (
+                <div
+                  className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
+                  dangerouslySetInnerHTML={{ __html: qrSvg }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xs text-black/50 animate-pulse">
+                  Generating QR...
+                </div>
+              )}
+            </div>
+            <span className="text-[10px] font-bold text-[#050507] mt-1.5 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-accent" />
+              <span>Scan with Camera or Lens</span>
+            </span>
+          </div>
+
+          {/* Package Identification badge */}
+          <div className="mb-4 text-[10px] font-mono text-white/60 bg-white/[0.05] px-3 py-1 rounded-lg border border-white/10">
+            Package: <span className="text-accent font-bold">com.codesec.locraai</span>
+          </div>
+
+          {/* Direct Store Links & Copy */}
+          <div className="w-full flex flex-col gap-2">
+            <a
+              href={currentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-black border border-white/25 text-white font-bold py-2.5 text-xs hover:border-white/50 hover:bg-[#181822] transition-all shadow-md"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-accent" />
+              <span>Open {activePlatform === "android" ? "Google Play" : "App Store"} URL</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/12 text-white/85 hover:text-white font-medium py-2 text-xs transition-colors"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-ok" />
+                  <span className="text-ok font-semibold">Store Link Copied!</span>
+                </>
+              ) : (
+                <span>Copy Store Link</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -108,7 +278,7 @@ export function AppStoreBadges({
           </div>
         </a>
 
-        {/* QR Code Quick Scan Trigger for Desktop */}
+        {/* QR Code Quick Scan Trigger */}
         {showQrTrigger && (
           <button
             type="button"
@@ -122,144 +292,8 @@ export function AppStoreBadges({
         )}
       </div>
 
-      {/* Download Modal / QR Code Dialog */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div
-            className="glass-panel relative w-full max-w-md rounded-3xl p-6 sm:p-8 border border-white/15"
-            role="dialog"
-            aria-modal="true"
-          >
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 rounded-full p-2 text-white/50 hover:bg-white/[0.1] hover:text-white transition-colors"
-              aria-label="Close dialog"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="rounded-2xl bg-accent/15 border border-accent/30 p-3 text-accent mb-3">
-                <Smartphone className="w-7 h-7" />
-              </div>
-
-              <h3 className="text-xl font-bold text-white">
-                Get Locra AI on your phone
-              </h3>
-              <p className="text-xs sm:text-sm text-white/70 mt-1.5 mb-5 max-w-xs">
-                Install directly on Android (package: <code className="text-accent font-mono">com.codesec.locraai</code>) or iOS.
-              </p>
-
-              {/* High Quality Styled QR Code */}
-              <div className="p-4 bg-white rounded-2xl shadow-2xl mb-5 flex flex-col items-center justify-center">
-                <div className="w-44 h-44 flex flex-col items-center justify-center relative">
-                  {/* Clean SVG QR matrix graphic */}
-                  <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
-                    {/* Corner 1 */}
-                    <rect x="10" y="10" width="50" height="50" rx="6" fill="#0B0B0F" />
-                    <rect x="20" y="20" width="30" height="30" rx="3" fill="#FFFFFF" />
-                    <rect x="28" y="28" width="14" height="14" rx="2" fill="#FF8A3D" />
-
-                    {/* Corner 2 */}
-                    <rect x="140" y="10" width="50" height="50" rx="6" fill="#0B0B0F" />
-                    <rect x="150" y="20" width="30" height="30" rx="3" fill="#FFFFFF" />
-                    <rect x="158" y="28" width="14" height="14" rx="2" fill="#FF8A3D" />
-
-                    {/* Corner 3 */}
-                    <rect x="10" y="140" width="50" height="50" rx="6" fill="#0B0B0F" />
-                    <rect x="20" y="150" width="30" height="30" rx="3" fill="#FFFFFF" />
-                    <rect x="28" y="158" width="14" height="14" rx="2" fill="#FF8A3D" />
-
-                    {/* Matrix dots */}
-                    <rect x="70" y="15" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="90" y="15" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="110" y="15" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="75" y="35" width="12" height="12" rx="2" fill="#FF8A3D" />
-                    <rect x="105" y="35" width="12" height="12" rx="2" fill="#0B0B0F" />
-
-                    <rect x="15" y="75" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="35" y="75" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="15" y="105" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="40" y="115" width="12" height="12" rx="2" fill="#FF8A3D" />
-
-                    <rect x="145" y="75" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="170" y="75" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="145" y="105" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="170" y="115" width="12" height="12" rx="2" fill="#0B0B0F" />
-
-                    {/* Center Area */}
-                    <rect x="70" y="70" width="60" height="60" rx="8" fill="#0B0B0F" />
-                    <rect x="74" y="74" width="52" height="52" rx="6" fill="#161620" />
-                    <circle cx="100" cy="100" r="16" fill="#FF8A3D" />
-                    <path
-                      d="M94 100l4 4 8-8"
-                      stroke="#FFFFFF"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-
-                    {/* Bottom Area */}
-                    <rect x="70" y="145" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="90" y="145" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="110" y="145" width="12" height="12" rx="2" fill="#FF8A3D" />
-                    <rect x="145" y="145" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="170" y="145" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="75" y="170" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="105" y="170" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="145" y="170" width="12" height="12" rx="2" fill="#0B0B0F" />
-                    <rect x="170" y="170" width="12" height="12" rx="2" fill="#FF8A3D" />
-                  </svg>
-                </div>
-                <span className="text-[11px] font-bold text-slate-800 mt-2">
-                  Scan with Camera
-                </span>
-              </div>
-
-              {/* Direct Store Links */}
-              <div className="w-full flex flex-col gap-2.5">
-                <a
-                  href={siteConfig.links.googlePlay}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-black border border-white/20 text-white font-semibold py-3 text-xs hover:border-white/50 hover:bg-[#141418] transition-all"
-                >
-                  <ExternalLink className="w-4 h-4 text-accent" />
-                  <span>Open Google Play (Android)</span>
-                </a>
-
-                <a
-                  href={siteConfig.links.appStore}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-black border border-white/20 text-white font-semibold py-3 text-xs hover:border-white/50 hover:bg-[#141418] transition-all"
-                >
-                  <ExternalLink className="w-4 h-4 text-white" />
-                  <span>Open App Store (iOS)</span>
-                </a>
-
-                <button
-                  type="button"
-                  onClick={handleCopyLink}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl glass-card text-white/80 hover:text-white font-medium py-2.5 text-xs transition-colors"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-ok" />
-                      <span className="text-ok font-semibold">Play Store Link Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Copy Play Store URL</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Render modal directly into document.body to prevent parent stacking context clipping */}
+      {mounted && modalContent && createPortal(modalContent, document.body)}
     </>
   );
 }
-

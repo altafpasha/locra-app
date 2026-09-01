@@ -2,145 +2,210 @@ name: 🚀 Build & Deploy Locra AI (Production)
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
+    paths-ignore:
+      - "**.md"
+      - "design/**"
+      - ".vscode/**"
+      - "LICENSE"
   workflow_dispatch:
 
+# GITHUB_TOKEN needs: read the repo, push/pull the container image on GHCR.
 permissions:
   contents: read
+  packages: write
 
+# Never let two production deploys run at once; queue them instead of cancelling.
 concurrency:
   group: production-deploy
   cancel-in-progress: false
 
-jobs:
-  # ============================================================================
-  # 1. Validation & Build Test
-  # ============================================================================
-  build-and-test:
-    name: 🧪 Validate & Build
-    runs-on: ubuntu-latest
+env:
+  REGISTRY: ghcr.io
 
+jobs:
+  # ==========================================================================
+  # 1. Build the production image and push it to GitHub Container Registry.
+  #    `next build` runs inside the Docker build, so a broken build fails here
+  #    and the deploy job never starts.
+  # ==========================================================================
+  build:
+    name: 🏗️ Build & Push Image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.vars.outputs.image }}
+      image_sha: ${{ steps.vars.outputs.image_sha }}
     steps:
-      - name: 📥 Checkout Repository
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js 20
-        uses: actions/setup-node@v4
+      - name: 🧮 Resolve image coordinates (registry paths must be lowercase)
+        id: vars
+        run: |
+          repo="${GITHUB_REPOSITORY,,}"
+          echo "image=${REGISTRY}/${repo}"                        >> "$GITHUB_OUTPUT"
+          echo "image_sha=${REGISTRY}/${repo}:sha-${GITHUB_SHA}"  >> "$GITHUB_OUTPUT"
+
+      - name: 🐳 Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          node-version: 20
-          cache: "npm"
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 📦 Install Dependencies
-        run: npm ci
+      - name: 🏗️ Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ${{ steps.vars.outputs.image }}:sha-${{ github.sha }}
+            ${{ steps.vars.outputs.image }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: 🏗️ Build Application (Standalone Verification)
-        run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-          NODE_ENV: production
-
-  # ============================================================================
-  # 2. Remote Deployment via SSH to Dokploy / Traefik Host
-  # ============================================================================
+  # ==========================================================================
+  # 2. Pull the freshly-built image on the production host and roll it out.
+  #    The server only ever needs: docker, the compose file, and an .env.
+  # ==========================================================================
   deploy:
     name: 🚢 Deploy to Production Server
-    needs: build-and-test
+    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
-
     steps:
-      - name: 📥 Checkout Repository
+      - name: 📥 Checkout (for the compose file)
         uses: actions/checkout@v4
 
-      - name: 🔐 Execute Remote Deployment over SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: 📦 Encode compose file for transport
+        id: pack
+        run: echo "compose_b64=$(base64 -w0 docker-compose.prod.yml)" >> "$GITHUB_OUTPUT"
+
+      - name: 🔐 Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.2
         env:
+          COMPOSE_B64: ${{ steps.pack.outputs.compose_b64 }}
+          LOCRA_IMAGE: ${{ needs.build.outputs.image_sha }}
+          REGISTRY: ${{ env.REGISTRY }}
+          REGISTRY_USER: ${{ github.actor }}
+          # Optional read:packages PAT for resilient manual ops; falls back to the job token.
+          REGISTRY_TOKEN: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           TRAVEL_AI_API_KEY: ${{ secrets.TRAVEL_AI_API_KEY }}
           TRAVEL_AI_API_URL: ${{ secrets.TRAVEL_AI_API_URL || 'https://travel-api.codesec.me' }}
-          REPO_AUTH_URL: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          REPO_CLEAN_URL: "https://github.com/${{ github.repository }}.git"
-          BRANCH: ${{ github.ref_name }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          envs: DEPLOY_PATH,TRAVEL_AI_API_KEY,TRAVEL_AI_API_URL,REPO_AUTH_URL,REPO_CLEAN_URL,BRANCH
-          script_stop: true
+          envs: COMPOSE_B64,LOCRA_IMAGE,REGISTRY,REGISTRY_USER,REGISTRY_TOKEN,DEPLOY_PATH,TRAVEL_AI_API_KEY,TRAVEL_AI_API_URL
+          command_timeout: 20m
           script: |
+            set -eu
+            # POSIX-only below: this runs under whatever login shell the SSH user has.
+
+            log() { printf '\033[1;36m▸ %s\033[0m\n'  "$*"; }
+            ok()  { printf '\033[1;32m✔ %s\033[0m\n'  "$*"; }
+            die() { printf '\033[1;31m✗ %s\033[0m\n'  "$*" >&2; exit 1; }
+
+            TARGET_DIR="${DEPLOY_PATH:-$HOME/locra_app}"
+            COMPOSE="docker-compose.prod.yml"
+
             echo "=================================================="
-            echo "🚀 Starting Locra AI Deployment on $(hostname)"
-            echo "👤 User: $(whoami) | Home: $HOME | PWD: $(pwd)"
+            log  "Locra AI deploy on $(hostname)"
+            log  "User $(whoami) | Target ${TARGET_DIR}"
+            log  "Image ${LOCRA_IMAGE}"
             echo "=================================================="
 
-            # 1. Determine and prepare target directory
-            if [ -n "$DEPLOY_PATH" ]; then
-              TARGET_DIR="$DEPLOY_PATH"
-            else
-              TARGET_DIR="$HOME/locra_app"
+            # ---- sanity ----
+            [ -n "${TRAVEL_AI_API_KEY:-}" ] || die "Repository secret TRAVEL_AI_API_KEY is not set"
+
+            # ---- resolve docker (plain, then passwordless sudo) ----
+            if   docker info >/dev/null 2>&1;         then DK="docker"
+            elif sudo -n docker info >/dev/null 2>&1; then DK="sudo docker"
+            else die "Docker is not usable by $(whoami) (add to 'docker' group or grant passwordless sudo)"
             fi
-            echo "📂 Target Directory: $TARGET_DIR"
+            $DK compose version >/dev/null 2>&1 || die "Docker Compose v2 plugin is missing on the host"
+            ok "docker ready via: ${DK}"
 
-            mkdir -p "$TARGET_DIR" 2>/dev/null || sudo mkdir -p "$TARGET_DIR" 2>/dev/null || true
-            sudo chown -R $(whoami):$(whoami) "$TARGET_DIR" 2>/dev/null || true
+            # ---- workspace ----
+            mkdir -p "$TARGET_DIR" 2>/dev/null || sudo mkdir -p "$TARGET_DIR"
+            sudo chown "$(id -u):$(id -g)" "$TARGET_DIR" 2>/dev/null || true
             cd "$TARGET_DIR"
-            echo "📍 Current working directory: $(pwd)"
 
-            # 2. Git Fetch and Sync with Token Authentication
-            echo "🔄 Synchronizing codebase from GitHub..."
-            if [ -d ".git" ]; then
-              echo "🔄 Updating existing Git repository..."
-              git remote set-url origin "$REPO_AUTH_URL" 2>/dev/null || true
-              git fetch origin "$BRANCH"
-              git reset --hard "origin/$BRANCH"
+            # ---- render compose + env (env file locked to 0600) ----
+            printf '%s' "$COMPOSE_B64" | base64 -d > "$COMPOSE" || die "could not decode compose file"
+            [ -s "$COMPOSE" ] || die "decoded compose file is empty"
+            ( umask 077; cat > .env <<EOF
+            NODE_ENV=production
+            PORT=3000
+            HOSTNAME=0.0.0.0
+            TRAVEL_AI_API_KEY=${TRAVEL_AI_API_KEY}
+            TRAVEL_AI_API_URL=${TRAVEL_AI_API_URL}
+            EOF
+            )
+            ok "wrote ${COMPOSE} + .env"
+
+            # ---- registry login (always log out on exit) ----
+            trap '$DK logout "$REGISTRY" >/dev/null 2>&1 || true' EXIT
+            echo "$REGISTRY_TOKEN" | $DK login "$REGISTRY" -u "$REGISTRY_USER" --password-stdin >/dev/null \
+              || die "GHCR login failed for ${REGISTRY_USER} (check package read access / GHCR_TOKEN)"
+            ok "authenticated to ${REGISTRY}"
+
+            # ---- ensure the Traefik/Dokploy proxy network exists ----
+            $DK network inspect dokploy-network >/dev/null 2>&1 || $DK network create dokploy-network >/dev/null
+
+            # ---- pull + roll ----
+            export LOCRA_IMAGE
+            log "pulling ${LOCRA_IMAGE}"
+            $DK compose -f "$COMPOSE" pull
+            log "starting containers"
+            $DK compose -f "$COMPOSE" up -d --remove-orphans
+
+            # ---- health gate (max 120s) ----
+            log "waiting for container health"
+            deadline=$(( $(date +%s) + 120 ))
+            while :; do
+              state="$($DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}nohealthcheck{{end}}' locra-app 2>/dev/null || echo missing)"
+              case "$state" in
+                healthy)       ok "container healthy"; break ;;
+                nohealthcheck) ok "container running (image has no healthcheck)"; break ;;
+                unhealthy)     $DK logs --tail 120 locra-app || true; die "container is unhealthy" ;;
+                missing)       die "container 'locra-app' did not start" ;;
+              esac
+              [ "$(date +%s)" -ge "$deadline" ] && { $DK logs --tail 120 locra-app || true; die "timed out waiting for health"; }
+              sleep 3
+            done
+
+            # ---- app-level smoke test from inside the container ----
+            if $DK exec locra-app node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"; then
+              ok "/api/health responded 200"
             else
-              echo "📥 Initializing and cloning Git repository..."
-              git init
-              git remote add origin "$REPO_AUTH_URL" 2>/dev/null || git remote set-url origin "$REPO_AUTH_URL" 2>/dev/null || true
-              git fetch origin "$BRANCH"
-              git checkout -f -B "$BRANCH" "origin/$BRANCH"
+              $DK logs --tail 120 locra-app || true
+              die "/api/health check failed"
             fi
 
-            # Clean token from git config after sync
-            git remote set-url origin "$REPO_CLEAN_URL" 2>/dev/null || true
-            echo "✅ Codebase updated to latest commit."
-
-            # 3. Write Production Environment Configuration
-            echo "⚙️ Writing .env configuration..."
-            printf "NODE_ENV=production\nPORT=3000\nTRAVEL_AI_API_KEY=%s\nTRAVEL_AI_API_URL=%s\n" "$TRAVEL_AI_API_KEY" "$TRAVEL_AI_API_URL" > .env
-
-            # 4. Check Docker Permissions and Compose Command
-            if docker ps >/dev/null 2>&1; then
-              DOCKER_BIN="docker"
-            elif sudo docker ps >/dev/null 2>&1; then
-              DOCKER_BIN="sudo docker"
-            else
-              echo "❌ Error: Docker is not accessible for user $(whoami)"
-              exit 1
-            fi
-            echo "🐳 Using Docker command: $DOCKER_BIN"
-
-            # 5. Ensure Dokploy / Traefik Network
-            echo "🌐 Checking Docker network 'dokploy-network'..."
-            $DOCKER_BIN network inspect dokploy-network >/dev/null 2>&1 || $DOCKER_BIN network create dokploy-network 2>/dev/null || true
-
-            # 6. Build and Launch Containers
-            echo "🚀 Launching containers with Docker Compose..."
-            $DOCKER_BIN compose -f docker-compose.prod.yml up -d --build --remove-orphans
-
-            # 7. Prune dangling images
-            echo "🧹 Cleaning up old unused images..."
-            $DOCKER_BIN image prune -f || true
-
-            # 8. Verification Output
-            echo "✅ Container status:"
-            $DOCKER_BIN ps --filter "name=locra-app"
+            # ---- prune dangling layers ----
+            $DK image prune -f >/dev/null 2>&1 || true
 
             echo "=================================================="
-            echo "🎉 Locra AI successfully deployed to:"
-            echo "   👉 https://locra.app"
-            echo "   👉 https://www.locra.app"
+            ok  "Locra AI deployed: ${LOCRA_IMAGE}"
+            $DK compose -f "$COMPOSE" ps
+            echo "   https://locra.app  |  https://www.locra.app"
             echo "=================================================="
+
+      - name: 🌐 Public smoke test (https://locra.app/api/health)
+        continue-on-error: true
+        run: |
+          for i in $(seq 1 10); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' https://locra.app/api/health || true)"
+            [ "$code" = "200" ] && { echo "✅ locra.app/api/health -> 200"; exit 0; }
+            echo "attempt $i: got '$code', retrying in 6s"; sleep 6
+          done
+          echo "::warning::Public health check never returned 200 (Traefik / DNS / TLS may still be settling)"

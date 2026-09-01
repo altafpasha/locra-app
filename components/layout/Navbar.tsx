@@ -23,9 +23,10 @@ export function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 24);
+      setScrolled(window.scrollY > 15);
     };
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -38,9 +39,16 @@ export function Navbar() {
       <div className="max-w-5xl mx-auto pointer-events-auto">
         <nav
           className={cn(
-            "glass-pill-nav rounded-full px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between transition-all duration-300",
-            scrolled ? "shadow-2xl bg-[#0C0C11]/90" : "bg-[#0C0C11]/75"
+            "rounded-full px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between transition-all duration-300",
+            "border border-white/12 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.65)]",
+            scrolled
+              ? "bg-[#09090E]/80 shadow-2xl ring-1 ring-white/10"
+              : "bg-[#09090E]/50"
           )}
+          style={{
+            backdropFilter: "blur(24px) saturate(180%)",
+            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          }}
           aria-label="Main Navigation"
         >
           {/* Brand Logo */}
@@ -49,7 +57,7 @@ export function Navbar() {
             aria-label="Locra AI — Home"
             className="flex items-center gap-2.5 group focus-visible:outline-none rounded-full"
           >
-            <div className="relative w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
+            <div className="relative w-8 h-8 rounded-full bg-white/[0.08] border border-white/15 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105 shadow-md">
               <Image
                 src="/logo-mark.png"
                 alt="Locra AI Logo"
@@ -70,7 +78,7 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="px-3.5 py-1.5 rounded-full text-xs font-medium text-white/70 hover:text-white hover:bg-white/[0.06] transition-colors"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium text-white/75 hover:text-white hover:bg-white/[0.08] transition-colors"
               >
                 {item.label}
               </Link>
@@ -81,7 +89,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <a
               href="#download-app"
-              className="orange-pill-btn inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-xs font-bold text-[#140A02] transition-all active:scale-[0.98]"
+              className="orange-pill-btn inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold text-[#140A02] transition-all active:scale-[0.98] shadow-lg shadow-accent/25 hover:shadow-accent/40"
             >
               <Sparkles className="w-3.5 h-3.5 fill-current" />
               <span>Get Locra</span>
@@ -92,7 +100,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden rounded-full p-2 text-white/75 hover:bg-white/[0.08] hover:text-white focus:outline-none"
+            className="md:hidden rounded-full p-2 text-white/80 hover:bg-white/[0.1] hover:text-white focus:outline-none"
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle navigation menu"
           >
@@ -103,7 +111,13 @@ export function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden pointer-events-auto max-w-sm mx-auto mt-2 rounded-3xl glass-panel p-5 animate-in slide-in-from-top-3 duration-200 border border-white/10 shadow-2xl">
+        <div
+          className="md:hidden pointer-events-auto max-w-sm mx-auto mt-2 rounded-3xl p-5 animate-in slide-in-from-top-3 duration-200 border border-white/15 shadow-2xl bg-[#0B0B10]/85"
+          style={{
+            backdropFilter: "blur(28px) saturate(190%)",
+            WebkitBackdropFilter: "blur(28px) saturate(190%)",
+          }}
+        >
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-3 mb-1">
               Navigation
@@ -113,7 +127,7 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:bg-white/[0.06] transition-colors"
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-white/85 hover:bg-white/[0.08] transition-colors"
               >
                 <span>{item.label}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-white/40" />
@@ -125,7 +139,7 @@ export function Navbar() {
             <a
               href="#download-app"
               onClick={() => setMobileMenuOpen(false)}
-              className="orange-pill-btn flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-[#140A02] text-center"
+              className="orange-pill-btn flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-[#140A02] text-center shadow-lg"
             >
               <Sparkles className="w-3.5 h-3.5 fill-current" />
               <span>Download on Google Play</span>
