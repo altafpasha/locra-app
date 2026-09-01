@@ -71,6 +71,7 @@ export const siteConfig = {
       { label: "Subscription Terms", href: "/subscription-terms" },
       { label: "Community Guidelines", href: "/community-guidelines" },
       { label: "Data Deletion", href: "/data-deletion" },
+      { label: "Delete Account", href: "/delete-account" },
     ],
   },
   socialProof: "Built for travelers who save everything and plan later.",

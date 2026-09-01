@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/subscription-terms`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.4 },
     { url: `${baseUrl}/community-guidelines`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.4 },
     { url: `${baseUrl}/data-deletion`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.4 },
+    { url: `${baseUrl}/delete-account`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
   ];
 
   const blogRoutes = blogPosts.map((post) => ({
